@@ -1,0 +1,23 @@
+<div class="modal-content">
+	<form class="form-horizontal" name="userBulk" ng-submit="submitUpload(userBulk.$valid)" novalidate>
+		<div class="modal-header bg-info">
+		   	<i class="fa fa-user-plus"></i><span> Upload File</span>
+		</div>
+		<div class="modal-body text-center">
+		  	<div class="form-horizontal">
+		  		<div class="form-group" 
+				  	ng-class="{'has-error': userBulk.file.$invalid && (userBulk.file.$dirty || userBulk.$submitted)}">
+				    <label for="userid" class="col-sm-3 control-label">File Location *</label>
+				    <div class="col-sm-8">
+				      	<input type="file" class="form-control" id="file" name="file" ng-model="file" required/>
+				      	<span class="help-block error-block basic-block" style="float: left">Required</span>
+				    </div>
+				</div>
+		  	</div>	
+		</div>
+		<div class="modal-footer">
+		    <button type="submit" class="btn btn-info">Upload</button>
+		    <button type="button" class="btn btn-default" ng-click="$dismiss()">Cancel</button>
+		</div>
+	</form>
+</div>

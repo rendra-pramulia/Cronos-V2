@@ -1,0 +1,11 @@
+<div class="modal-content">
+  <div class="modal-header bg-danger">
+    <i class="ion-flame modal-icon"></i><span> Delete</span>
+  </div>
+  <div class="modal-body text-center">Are you sure to delete this data ?</div>
+  <div class="modal-footer">
+  	<button type="button" class="btn btn-default" ng-click="$dismiss()">Cancel</button>
+    <button type="button" class="btn btn-danger" ng-click="doDelete();$dismiss()">OK</button>
+  </div>
+</div>
+ <!-- ng-click="" -->

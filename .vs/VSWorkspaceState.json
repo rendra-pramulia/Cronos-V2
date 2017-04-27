@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\cronos-app",
+    "\\cronos-app\\app",
+    "\\cronos-app\\app\\pages",
+    "\\cronos-app\\app\\pages\\administrator",
+    "\\cronos-app\\app\\pages\\administrator\\group.settings",
+    "\\cronos-app\\app\\pages\\administrator\\user.bussinessunit",
+    "\\cronos-app\\app\\pages\\common",
+    "\\cronos-app\\app\\pages\\common\\mfb"
+  ],
+  "SelectedNode": "\\cronos-app\\app\\pages\\app.routeConfig.js",
+  "PreviewInSolutionExplorer": false
+}

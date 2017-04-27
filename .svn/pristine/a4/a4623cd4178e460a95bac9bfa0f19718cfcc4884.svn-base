@@ -1,0 +1,197 @@
+(function () {
+  'use strict';
+
+  angular.module('Cronos.pages.role')
+      .controller('roleController',roleController);
+
+    roleController.$inject = ['$scope', '$q', '$state', '$uibModal', '$rootScope', 'loginCheck', '$stateParams', '$uibModalStack', 'ajax', 'cronosToastr'];
+    function roleController($scope, $q, $state, $uibModal, $rootScope, loginCheck, $stateParams, $uibModalStack, ajax, cronosToastr) {
+
+      var modalInstance = { close: function() {}, dismiss: function() {} };
+      var roleObject = [];
+
+      var role = this;
+      $scope.insertRole = true;
+      $scope.editRole = false;
+      $scope.deleteRole = false;
+
+        $scope.dtConfig = {
+            "processing": true,
+            "serverSide": true,
+            "responsive": false,
+            "ajax": {
+                "url": $rootScope.urlCronos+"/api/role/getrole/dt",
+                "method": "POST",
+                "beforeSend": function (request) {
+                    request.setRequestHeader("Authorization", loginCheck.users.token);
+                }
+            },
+            "columns": [
+                { "title": "Role ID", "data":  "roleName", "className": "text-left", "defaultContent": "-"},
+                { "title": "Description Role", "data":  "roleDescription", "className": "text-left", "defaultContent": "-"},
+                { "title": "Status", "data":  "status", "className": "text-left", "defaultContent": "-"},
+            ]
+        };
+
+        $scope.chosen = {
+          effect : 'zoomin',
+          position : 'br',
+          method : 'dblclick',
+          action : 'fire'
+        };
+
+        $scope.buttons = [{
+          label: 'Delete',
+          icon: 'ion-android-delete',
+          href: '#'
+        },{
+          label: 'Edit',
+          icon: 'ion-android-create',
+          href: '#'
+        },{
+          label: 'Add',
+          icon: 'ion-android-add-circle',
+          href: 'test'
+        }];
+
+        function loc(href) {
+          console.log('haha ',href);
+        };
+
+        function mainAction() {
+          //console.log('Firing Main Action!');
+        };
+
+        function setMainAction() {
+          if($scope.chosen.action === 'fire') {
+            $scope.mainAction = mainAction;
+          } else {
+            $scope.mainAction = null;
+          }
+        };
+
+        $scope.submitRoleForm = function(isValid){
+            console.log(isValid);
+            if(isValid){
+                var data = this.role;
+                console.log(data);
+                //$uibModalInstance.close();
+                $uibModalStack.dismissAll();
+            } 
+        };
+        $scope.modalDelete = function(){
+      
+            var modalScope = $scope.$new();
+            var modalInstance = $uibModal.open({
+                animation: true,
+                backdrop: 'static',
+                templateUrl: 'app/pages/common/message/deleteMessage.html',
+                size: 'lg',
+                scope: modalScope
+            }).closed.then(function(){
+              
+              alert('modal closed');
+              $scope.deleteRoleFunction(roleObject); 
+              
+            });
+            modalScope.modalInstance = modalInstance;
+        };
+
+        $scope.deleteRoleFunction = function(roleObject){
+          console.log("id role yang di delete: "+ roleObject);
+        };
+
+        $scope.modalAdd = function(){
+          $scope.action = "Add Role";
+          $scope.icon = "ion-plus-circled";
+          
+          modalShow();
+        };
+
+        $scope.modalEdit = function(){
+          $scope.action = "Edit Role";
+          $scope.icon = "fa fa-pencil-square-o";
+          modalShow(role);
+        };
+
+        var modalShow = function(role){
+            console.log(roleObject);
+            
+            if(roleObject.length != 0){
+                ajax.http('POST', {id: roleObject[0]}, '/api/role/getrole', 'application/json')
+                .then(function(data) {
+                   
+                    if(data.status == 200 ){
+                        console.log("datanya " ,data);
+                        $scope.role = data.data[0];
+                    } else {
+                        cronosToastr.error(data.status+' : '+data.message);
+                    } 
+                }, function(error) {
+                    console.log('error', error);
+                    cronosToastr.error(error.status+' : '+error.message);
+              });
+            } else {
+                $scope.role = null;
+            }
+
+
+            var modalScope = $scope.$new();
+            var modalInstance = $uibModal.open({
+                animation: true,
+                backdrop: 'static',
+                templateUrl: 'app/pages/role/role.add.html',
+                size: 'lg',
+                scope: modalScope
+            }).closed.then(function(){
+               alert('modal closed');
+            });
+            modalScope.modalInstance = modalInstance;
+
+        };
+
+        $scope.selectedRow = function(selected, tableData){
+          var a = roleObject.indexOf(tableData.id);
+          $scope.roleId = null;
+          if(selected == 1) {
+            roleObject = [];
+            roleObject.push(tableData.id);
+            $scope.roleId = roleObject[0];
+            console.log( roleObject );
+            $scope.editRole = true;
+            $scope.deleteRole = true;
+            $scope.insertRole = false;
+          } else if(selected > 1) {
+            $scope.editRole = false;
+            $scope.insertRole = false;
+            $scope.deleteRole = true;
+            if(a == -1){
+              roleObject.push(tableData.id);
+            } else {
+              roleObject.splice(a, 1);
+            }   
+          } else {
+            $scope.editRole = false;
+            $scope.insertRole = true;
+            $scope.deleteRole = false;
+            roleObject = [];
+          }
+        };
+        
+    };
+
+    roleController.hovered = function() {
+        // toggle something on hover.
+    };
+
+    roleController.toggle = function() {
+        this.menuState = this.menuState === 'closed' ? 'open' : 'closed';
+    };
+
+    roleController.closeMenu = function() {
+        this.menuState = 'closed';
+    };
+
+
+
+})();

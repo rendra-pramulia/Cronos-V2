@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<jsp:include page="../../resource/header.jsp"/>
+	
+	<!--  include plugin for at.js -->
+	<script src="${pageContext.request.contextPath}/resources/js/plugins/caret/jquery.caret.min.js"></script>
+	<script src="${pageContext.request.contextPath}/resources/js/plugins/at/jquery.atwho.min.js"></script>
+	<link href="${pageContext.request.contextPath}/resources/css/plugins/at/jquery.atwho.min.css" rel="stylesheet" />
+	
+	<!--  include typeaheadjs to extend x-editable -->
+	<script src="${pageContext.request.contextPath}/resources/js/plugins/xeditable/typeaheadjs/lib/typeahead.js"></script>
+	<script src="${pageContext.request.contextPath}/resources/js/plugins/xeditable/typeaheadjs/typeaheadjs.js"></script>
+	<link href="${pageContext.request.contextPath}/resources/js/plugins/xeditable/typeaheadjs/lib/typeahead.js-bootstrap.css" rel="stylesheet" />
+	
+	<title>
+		<c:choose>
+			<c:when test="${mode == 1}">
+				<spring:message code="xml.creator.title.edit" />
+			</c:when>
+			<c:otherwise>
+				<spring:message code="xml.creator.title.create" />
+			</c:otherwise>
+		</c:choose>
+	</title>
+	<style>
+		/* remove whitespace between elements */ 
+		.xml-canvas-item-dom{font-size:0px}
+		.xml-canvas-item-dom a, .xml-canvas-item-dom div{font-size:16px}
+		/* remove whitespace between elements */
+		
+		label.required:after {content: " *"}
+		
+		.xml-canvas {position:relative;padding-left:0}
+		.xml-canvas-item-dom .xml-canvas {padding-left:20px;margin-bottom:0px;margin-top:2px}
+		
+		.treeline {
+			content: "";
+			width: 10px;
+			display: inline-block;
+			border-left: 1px dotted black;
+			border-bottom: 1px dotted black;
+			position: absolute;
+			left: -12px;
+		}
+		
+		.treeline {
+			height: 32px;
+			top: -15px;
+		}
+
+		.xml-canvas-item-dom {
+			position:relative;
+			padding: 0;
+			padding-bottom:2px;
+			margin-top:0;
+    		border-top: 1px solid #e7eaec;
+		}
+		
+		.xml-canvas .xml-canvas-item:last-child {
+		    border-bottom: 1px solid #e7eaec;
+		    padding-bottom:2px;
+		}
+		
+		.collapsed_ellipsis ~ .close-tag {
+		    margin-bottom: 9px 0 3px;
+		}
+
+		.xml-canvas-item-content{
+			background-color: transparent;
+			font-family:monospace;
+/* 			border:1px solid #ddc919; */
+			width: auto;
+			padding: 0 4px;
+			margin: 3px 3px 3px 0;
+			border-radius:3px;
+			display:inline-block;
+			position:relative;
+			vertical-align: middle;
+		}
+		
+		.xml-canvas-item-dom[data-value_type="1"] > .xml-canvas-item-content, select[name=node_value_type] option[value="1"]{
+			/* background-color: #eee; */
+			color: #888;
+		}
+		
+		.xml-canvas-item-dom[data-value_type="2"] > .xml-canvas-item-content, select[name=node_value_type] option[value="2"]{
+			/* background-color: #FC8; */
+			color: #a83;
+		}
+		
+		.xml-canvas-item-dom[data-value_type="3"] > .xml-canvas-item-content, select[name=node_value_type] option[value="3"]{
+			/* background-color: #ffeb3b; */
+			color: #d90;
+		}
+		
+		.xml-canvas-item-dom[data-value_type="4"] > .xml-canvas-item-content, select[name=node_value_type] option[value="4"]{
+			/* background-color:#cef; */
+			color:#689;
+		}
+		
+		.xml-canvas-item-dom[data-value_type="5"] > .xml-canvas-item-content, select[name=node_value_type] option[value="5"]{
+			/* background-color:#cfc; */
+			color:#7c7;
+		}
+				
+		.xml-canvas-dragel {
+			position: absolute;
+			z-index: 9999;
+			pointer-events: none;
+			padding-left:0px;
+			cursor: move;
+		}
+		
+		button.item-menu {
+			position: absolute;
+			right: 2px;
+			top: 0px;
+			height: 26px;
+			background: none;
+			border: none;
+			font-size: 14px;
+			border-left: 1px solid #ddc919;
+		}
+		
+		.xml-canvas-dragel .xml-canvas-handle {
+			cursor: move;
+		}
+		
+		/* .xml-canvas-handle, .xml-canvas-handle-disabled {
+			cursor: move;
+			padding: 5px 10px;
+		} */
+		
+		#xml-root .xml-canvas-handle-disabled {cursor:default}
+
+		.expand_collapse_btn {
+			  position: absolute;
+			  z-index:2;
+			  top: 7px;
+			  left: -15px;
+			  width: 15px;
+			  height: 15px;
+			  padding: 0px;
+			  line-height: 12px;
+			  font-size: 16px;
+			  background: none;
+			  border: none;
+		}
+		
+		.xml-canvas-item-dom > .expand_collapse_btn.collapseBtn { display: block !important }
+		.xml-canvas-item-dom > .expand_collapse_btn.expandBtn{ display: none !important}
+		.xml-canvas-item-dom.xml-canvas-collapsed > .expand_collapse_btn.collapseBtn { display: none !important}
+		.xml-canvas-item-dom.xml-canvas-collapsed > .expand_collapse_btn.expandBtn{ display: block !important}
+		
+		/* .expand_collapse_btn + .xml-canvas-item-content .xml-canvas-handle, .expand_collapse_btn + .xml-canvas-item-content .xml-canvas-handle-disabled {
+		    padding: 5px 10px 5px 22px;
+		} */
+		
+		.xml-canvas-content{
+			border: 1px solid #ccc;
+			padding: 5px 10px;
+			width:16.16%;
+		}
+		
+		.xml-canvas-placeholder {
+			margin: 5px 0;
+			padding: 0;
+			min-height: 30px;
+			background: #f2fbff;
+			border: 1px dashed #b6bcbf;
+			box-sizing: border-box;
+			-moz-box-sizing: border-box;
+		}
+		
+		.dropdown-menu{
+			top:120%
+		}
+		
+		.popover{
+		    width:500px;
+		    max-width:500px;
+		}
+		
+		.popover .form-control{
+			font-size:12px;
+		}
+		/*.edit_node_form{width:350px}*/
+		
+		.close_popover {
+			  position: absolute;
+			  color: red;
+			  right: 10px;
+			}
+		
+		.circles-menu>button.disabledLink{color:#ccc}
+		.circles-menu>button.disabledLink:focus, .circles-menu>button.disabledLink:hover{
+			  color: #ccc;
+			  cursor: not-allowed;
+		}
+		
+		#xml-canvas-wrapper-wrapper{position:relative;border: 1px solid #e7eaec;overflow: visible; padding: 15px 0 15px 25px;min-height:75px}
+		
+		#hasilXML{position:fixed;top:50px;right:50px;width:400px;height:300px;z-index:9999999}
+		
+		.xml-structure-wrapper {
+		  min-height: 200px;
+		  padding-bottom: 115px;
+		  overflow:auto;
+		}
+		
+		.select-disabled select{}
+		
+		.valuewrapper select{
+			width: 100%;
+		}
+		
+		.valuewrapper textarea{
+			display:none;
+		}
+		
+		.valuewrapper.textinput textarea{
+			display:block;
+			width:100%;
+			height:100px;
+		}
+		
+		.valuewrapper.textinput select{
+			display:none;
+		}
+		
+		.valuewrapper-disabled {display:none}
+		
+		textarea {padding:6px 12px}
+		
+		.circles-menu {
+			  background-color: transparent;
+			  width: 0;
+			  height:0;
+			  overflow:hidden;
+			  top: -26px;
+			  right:0px;
+			  position: absolute;
+			  z-index:1;
+			  opacity:0;
+		}
+
+		.control-wrapper .circle {
+		    border-radius: 2px;
+		    padding: 0;
+		    font-size: 11px;
+		    line-height: 11px;
+		    text-align: center;
+		    width: 18px;
+		    height: 18px;
+		    border: 0px;
+		    right: 20px;
+		    vertical-align: middle;
+			margin: 0px 1px;
+		}
+		 
+		 /* .circle.addChildBtn{
+		 	background-color: #cfc;
+		  	border-color: #8c8;
+		  	color: #0a0;
+		  	top:30px;
+		 }
+		 
+		 .xml-canvas-item-content:hover .circles-menu .circle.addChildBtn{
+		 	top: 10px;
+		 }
+		 
+		 #xml-root .circles-menu .circle.addChildBtn{
+		 	top: 30px;
+		 }
+		 
+		 #xml-root .xml-canvas-item-content:hover .circles-menu .circle.addChildBtn{
+		 	top: 20px;
+		 } */
+		 
+		 .addChildBtn {
+		    float: right;
+		    margin: 4px 0px;
+		}
+		 
+		 .circle.editDetailBtn{
+		 	background-color: #ccf;
+		  	border-color:#88c;
+		  	color: #00a;
+			top: 30px;
+		 }
+
+		 
+		 .deleteThisBtn{
+		 	float:right;
+		 	margin:4px 5px;
+		 }
+		 
+		 #xml-root > .deleteThisBtn{
+			display:none;
+		 }
+		 
+		 #xml-root .addChildBtn{
+		 	float:right;
+		 }
+
+		 #xml-root .addChildBtn{
+		 	margin: 4px 5px;
+		 }
+		 
+		 
+		 .xml-canvas-item-content:hover .deleteThisBtn{
+		 	display:block;
+		 }
+		 
+		 .xml-canvas-item-content:hover .circles-menu .circle.deleteThisBtn{
+		 	top: 50px;
+		 }
+		 
+		 #xml-root .circles-menu .circle.editDetailBtn{
+		 	top: 30px;
+		 }
+		 
+		 #xml-root .xml-canvas-item-content:hover .circles-menu .circle.editDetailBtn{
+		 	top: 40px;
+		 }
+		 
+		 .circle:hover {
+			border-color: red;
+		 }
+		 
+		 .xml-canvas-item-content:hover .circles-menu, .firsttimer .circles-menu{
+		 	display:block;
+		 	opacity:1;
+		 	right: -40px;
+		 	width: 50px;
+		 	height: 78px;
+		 	-webkit-transition: opacity 0.4s, right 0.4s;
+    		transition: opacity 0.4s, right 0.4s;
+		 }
+		 
+		 textarea{
+		 	resize: none;
+		 }
+		 
+		 /* switch */
+		 .paddingtop7 {top:7px}
+		 .onoffswitch {
+			    position: relative; width: 40px;
+			    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+			}
+			.onoffswitch-checkbox {
+			    display: none;
+			}
+			.onoffswitch-label {
+			    display: block; overflow: hidden; cursor: pointer;
+			    border: 2px solid #666666; border-radius: 7px;
+			}
+			.onoffswitch-inner {
+			    display: block; width: 200%; margin-left: -100%;
+			    -moz-transition: margin 0.3s ease-in 0s; -webkit-transition: margin 0.3s ease-in 0s;
+			    -o-transition: margin 0.3s ease-in 0s; transition: margin 0.3s ease-in 0s;
+			}
+			.onoffswitch-inner:before, .onoffswitch-inner:after {
+				display: block; float: left; width: 50%; height: 11px; padding: 0; line-height: 11px;
+			    font-size: 12px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+			    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+			}
+			.onoffswitch-inner:before {
+			    content: "";
+			    padding-left: 10px;
+			    background-color: #1AB394; color: #FFFFFF;
+			}
+			.onoffswitch-inner:after {
+			    content: "";
+			    padding-right: 10px;
+			    background-color: #F8F8F8; color: #666666;
+			    text-align: right;
+			}
+			.onoffswitch-switch {
+			    display: block; width: 16px; margin: -2.5px;
+			    background: #FFFFFF;
+			    border: 2px solid #666666; border-radius: 7px;
+			    position: absolute; top: 0; bottom: 0; right: 25px;
+			    -moz-transition: all 0.3s ease-in 0s; -webkit-transition: all 0.3s ease-in 0s;
+			    -o-transition: all 0.3s ease-in 0s; transition: all 0.3s ease-in 0s; 
+			}
+			.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+			    margin-left: 0;
+			}
+			.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+			    right: 0px; 
+			}
+		 /* END switch */
+		
+		/*.xml-canvas-item-dom.nodeerror .xml-canvas-item-dom .xml-canvas-item-content {background-color:#888;color:#666;border-color:#aaa;}*/
+		.xml-canvas-item-dom.nodeerror .xml-canvas-item-dom .xml-canvas-item-content .xml-canvas-handle-disabled{cursor:not-allowed}
+		.xml-canvas-item-dom.nodeerror .xml-canvas-item-dom .xml-canvas-item-content:hover .circles-menu {display:none;}		
+		.xml-canvas-item-dom.nodeerror > .xml-canvas-item-content>span:after {font-family: "FontAwesome";content:"\f12a";color:#c00;border-color:#c00;margin-left:5px; font-size: 15px;}
+		.xml-canvas-item-dom.nodeerror > .xml-canvas-item-content.close-tag>span:after{content:none}
+		/* .xml-canvas-item-dom.nodeerror > .xml-canvas-item-content {border-color:#c00} */
+		#xml-root.nodeerror ~ #xml_build_nestable .xml-canvas-item-content{background-color:#888;color:#666;border-color:#aaa;}
+		#xml-root.nodeerror ~ #xml_build_nestable .xml-canvas-item-content .xml-canvas-handle-disabled{cursor:not-allowed}
+		#xml-root.nodeerror ~ #xml_build_nestable .xml-canvas-item-content:hover .circles-menu {display:none;}
+		.xml-canvas-item-dom.tag_hovered > .error-tooltip{display:inline-block}
+		.xml-canvas-item-dom .error-tooltip { position: absolute; border: 1px solid #cb3343; border-radius: 0px; display: none; font-family: monospace; color: #cb3343; font-size: 11px; margin-left: 5px; top: 5px; background-color: #fdd; z-index: 1;box-shadow: 1px 1px 3px -1px #555;}
+		.active_yes_no_error {display: inline-block; margin-left: 10px; margin-top: 7px; vertical-align: middle;}
+		.xml-canvas-collapsed #xml_build_nestable {display:none}		
+				
+		/* new styles */
+		/* .menu-adder {
+		    height: 0px;
+		    transition: 0.1s height;
+		    overflow:hidden;
+		    margin-left:20px;
+		}
+		.xml-canvas-item-dom.tag_hovered > .menu-adder {
+    		height: 30px;
+    	} */
+		
+		.xml-canvas-item-dom.tag_hovered {
+    		/*background: repeating-linear-gradient(#fafafa, #fafafa 32px, transparent 32.1px, transparent 1000px);
+    		background:#fafafa;*/
+    	}
+    	
+    	/* .xml-canvas-collapsed .menu-adder {
+		    display: none;
+		} */
+		
+		.collapsed_ellipsis {
+		    font-family: monospace;
+		    padding: 0 4px;
+		    margin: 3px 3px 3px 0;
+		    border-radius: 3px;
+		    position: relative;
+		    vertical-align: middle;
+		    display: none;
+		}
+		
+		.xml-canvas-collapsed .collapsed_ellipsis {
+		    display: inline-block;
+		}
+		
+		.control-wrapper {
+		    display: inline-block;
+		    background-color: white;
+		    border: 1px solid #ccc;
+		    border-radius: 3px;
+		    padding: 2px;
+		    margin: 3px;
+		    vertical-align: middle;
+		}
+		/* .circle{font-size:11px;height:16px;width:16px;float:left} */
+		
+		.xml-canvas-item-dom .xml-canvas-item-dom .menu-adder > .xml-canvas-item-content, .xml-canvas-item-dom .menu-adder > .xml-canvas-item-content {
+		    background-color: transparent;
+		    border: 1px dashed #aa0;
+		    border-radius: 3px;
+		    color: #aa0;
+		    cursor:crosshair;
+		}
+		
+		#xml-root {
+		    width: 49%;
+		    margin-top: 28px;
+    		border-top: 1px solid #ddd;
+		}
+		
+		#xml_node_description_table {display:inline-block;width:50%}
+		
+
+		#xml_node_description_table .table-condensed>thead>tr>th,#xml_node_description_table .table-condensed>tbody>tr>td {
+    		padding: 5px;
+		}
+		
+		/* #xml_node_description_table tr:last-child td {
+		    border-bottom: 1px solid #e7eaec;
+		} */
+		
+		tr.tr-filler {
+		    height: 31px;
+		}
+		
+		#xml_node_description_table td > .form-control{
+			padding: 0 3px;
+		    height: 20px;
+		    font-size: 12px;
+		    line-height: 20px;
+		}
+		
+		/* tr.tr_hovered {
+		    background-color:#fafafa;
+		} */
+		
+		.node-label br {display:none}
+		    
+		#xml_node_description_table .node-param-input {
+			width: 120px;
+		    overflow: hidden;
+		    display: block;
+		    border: none;
+		    word-break: break-all;
+		    padding: 0;
+		}
+		
+		.editable-container .popover-title{
+			margin-top: 0;
+		}
+		
+		.editableform textarea.form-control {
+		    width: auto;
+		    width: 300px;
+		    height: 100px;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="wrapper">
+		<div id="loaderImage" style="display:none"></div>
+		<jsp:include page="../../resource/navbar.jsp"/>
+        <div id="page-wrapper" class="gray-bg">
+			<jsp:include page="../../resource/navbar-top.jsp"/>
+			<div class="row white-bg panel-primary fixed-panel">
+				<div class="panel-heading">
+					<h2 class="panel-header">
+					<c:choose>
+						<c:when test="${mode == 1}">
+							<spring:message code="xml.creator.title.edit" />
+						</c:when>
+						<c:otherwise>
+							<spring:message code="xml.creator.title.create" />
+						</c:otherwise>
+					</c:choose>
+					</h2>
+				</div>
+				<div class="panel-body">
+					<div class="top-panel col-lg-6">
+						<a href="${pageContext.request.contextPath}/admin/xml"
+							class="btn btn-default tip"
+							title="<spring:message code="label.back" />"><i
+							class="fa fa-arrow-left"></i></a>&nbsp;
+						<button class="btn btn-primary tip"
+							title="<spring:message code="label.save" />" id="saveAll"
+							type="button" ><i class="fa fa-save"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+			<jsp:include page="../../resource/notification-message.jsp" />
+			<div id="edit_node_form_wrapper" style="display:none">
+				<form class="edit_node_form">
+					<div class="form-group">
+						<label for="node_name" class="control-label"><spring:message code="xml.creator.node.name" /></label>
+						<input type="text" class="form-control" name="node_name" placeholder="xml_node" required maxlength="30">
+					</div>
+					<div class="form-group">
+						<label for="node_value_type" class="control-label"><spring:message code="xml.creator.node.type" /></label>
+						<select class="form-control" name="node_value_type" required>
+							<option value="1">Source</option>
+							<option value="2">SubSource</option>
+							<option value="3" selected="selected">Field</option>
+							<option value="5">Label</option>
+							<option value="4">Text</option>
+						</select>
+					</div>
+					<ul class="nav nav-tabs">
+        				<li class="active"><a href=".tab1" data-toggle="tab">Download</a></li>
+        				<li class=""><a href=".tab2" data-toggle="tab">Upload</a></li>
+        			</ul>
+        			<div class="tab-content" style="padding-top: 15px">
+				        <div class="tab-pane active tab1" >
+					        <div class="form-group valuewrapper textinput">
+								<label for="node_value" class="control-label"><spring:message code="xml.creator.node.value" /></label>
+								<div>
+									<!-- select class="form-control" name="node_data_type"></select>-->
+									<select class="form-control" name="node_value_field"></select>
+									<!--<linput type="text" class="form-control" name="node_value" placeholder="Field Name">-->
+									<textarea class="form-control" name="node_value" placeholder="Field Name"></textarea> 
+								</div>
+							</div>
+				        </div>
+				        <div class="tab-pane tab2" >
+							<div class="form-group">
+								<label for="dbtable" class="control-label">Database Table</label>
+								<input class="form-control" type="text" name="dbtable" />
+							</div>
+							<div class="form-group">
+								<label for="dbfield" class="control-label">Database Field</label>
+								<input class="form-control" type="text" name="dbfield" />
+							</div>
+						</div>
+				    </div>
+					<div class="form-group">
+						<button type="button" class="btn btn-primary btn_save"><spring:message code="label.save" /></button>
+						<a class="btn btn-danger btn_close"><spring:message code="label.cancel" /></a>
+					</div>
+				</form>
+			</div>
+			
+			<div class="wrapper wrapper-content animated fadeInRight">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="ibox-content">
+							<h4><spring:message code="xml.creator.detail" /></h4>
+							<form class="form-horizontal" id="xml_master_form" method="post">
+							  <div class="form-group">
+							    <label for="xml_name" class="col-sm-2 control-label required"><spring:message code="xml.creator.name" /></label>
+							    <div class="col-sm-10">
+							      <input type="text" class="form-control checkAvailability" id="xml_name" name="xml_name" data-is-available="true" <c:if test="${mode == 1}">value="${mainData.xml_filename}"</c:if> maxlength="50" required />
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <label for="xml_description" class="col-sm-2 control-label required"><spring:message code="xml.creator.description" /></label>
+							    <div class="col-sm-10">
+							      <textarea style="display:block;width:100%;height:70px" name="xml_description" required maxlength="150"><c:if test="${mode == 1}">${mainData.xml_filedesc}</c:if></textarea>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <label for="xml_group" class="col-sm-2 control-label required">Group</label>
+							    <div class="col-sm-10">
+							    	<select class="form-control" id="xml_group" name="xml_group" required >
+							     		<c:forEach var="group" items="${xmlGroups}">
+							     			<option value="${group.id}"  <c:if test="${mode == 1 and mainData.xml_group == group.id}">selected</c:if> ><c:choose><c:when test="${user.language == 'in'}">${group.group_desc}</c:when><c:otherwise>${group.group_desceng}</c:otherwise></c:choose></option>
+							     		</c:forEach>
+							      	</select>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							  	<label for="is_active" class="col-sm-2 control-label"><spring:message code="xml.creator.isActive" /></label>
+							    <div class="col-sm-10 active_yes_no" >
+							      	<c:choose>
+							      		<c:when test="${mode == 1}">
+							      			<label class="radio-inline">
+												<input type="radio" name="is_active" value="1" <c:if test="${mainData.xml_flag == 1}">checked</c:if>> <spring:message code="xml.creator.yes" />
+											</label>
+											<label class="radio-inline">
+												<input type="radio" name="is_active" value="0" <c:if test="${mainData.xml_flag == 0}">checked</c:if>> <spring:message code="xml.creator.no" />
+											</label>
+										</c:when>
+										<c:otherwise>
+										    <label class="radio-inline">
+												<input type="radio" name="is_active" value="1"> <spring:message code="xml.creator.yes" />
+											</label>
+											<label class="radio-inline">
+												<input type="radio" name="is_active" value="0" checked> <spring:message code="xml.creator.no" />
+											</label>
+										</c:otherwise>
+							      	</c:choose>
+							      	<div class="active_yes_no_error" style="display:none">
+							    		<div class="label label-danger"><spring:message code="xml.creator.warning" /></div>
+							    		<input type="hidden" name="is_error" value="0"/>
+							    	</div>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							  	<label for="allowed_op" class="col-sm-2 control-label"><spring:message code="xml.creator.label.allowedaction" /></label>
+							    <div class="col-sm-10 active_yes_no" >
+									<label class="radio-inline">
+										<input type="radio" name="allowed_op" value="2" <c:if test="${mainData.xml_uploaddownloadflag == 2}">checked</c:if>> Download 
+									</label>
+									<label class="radio-inline">
+										<input type="radio" name="allowed_op" value="1" <c:if test="${mainData.xml_uploaddownloadflag == 1}">checked</c:if>> Upload
+									</label>
+									<label class="radio-inline">
+										<input type="radio" name="allowed_op" value="3" <c:if test="${mode == 0 or mainData.xml_uploaddownloadflag == 3}">checked</c:if>> <spring:message code="xml.creator.label.bothaction" /> 
+									</label>
+							    </div>
+							  </div>
+							  <input type="hidden" name="node_master" id="node_master"/>
+							  <input type="hidden" name="node_detail" id="node_detail"/>
+							  <input id="submit_all_btn" type="submit" value="Submit" style="display:none"/>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="ibox-content xml-structure-wrapper">
+							<h4><spring:message code="xml.creator.structure" /></h4>
+							<div id="xml-canvas-wrapper-wrapper">
+								<!-- <label class="col-sm-2 control-label">XML Parent Node</label>-->
+								<div id="xml-root" class="xml-canvas-item-dom col-sm-12 xml-canvas-collapsed" data-name="root_node" data-id="xml-root" data-value_type="1" data-data_type="" data-value="">
+									<div id="xml_build_nestable" class="xml-canvas-wrapper"></div>
+								</div>
+								<div id="xml_node_description_table">
+									<table class="table table-condensed table-responsive">
+										<thead>
+											<tr>
+												<th class="allowed_op_both"><spring:message code="xml.creator.label.type" /></th>
+												<th class="allowed_op_2"><spring:message code="xml.creator.label.value" /></th>
+												<th class="allowed_op_1"><spring:message code="xml.creator.label.targettable" /></th>
+												<th class="allowed_op_1"><spring:message code="xml.creator.label.targetfield" /></th>
+											</tr>
+										</thead>
+										<tbody>
+											<!-- <tr data-nodeid="xml-root">
+												<td>
+													<select name="desc_node_type">
+														<option value="1" selected>Source</option>
+														<option value="2">Subsource</option>
+														<option value="3">Field</option>
+														<option value="4">Label</option>
+														<option value="5">Free Text</option>
+													</select>
+												</td>
+												<td><input type="text" name="desc_node_value" value="select * from tablename" /></td>
+												<td><input type="text" name="desc_node_table" value=""/></td>
+												<td><input type="text" name="desc_node_field" value=""/></td>
+											</tr> -->
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>		
+			</div>
+			
+			<div class="modal inmodal modalRule" tabindex="-1" role="dialog" aria-hidden="true" id="deletex">
+				<div class="modal-dialog">
+					<div class="modal-content animated flipInY">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+							<h4 class="modal-title"><spring:message code="label.alert" /></h4>
+						</div>
+						<div class="modal-body">
+							<spring:message code="label.confirm.delete" />
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-danger" data-loading-text="Deleting..." id="deleteNodeConfirmed" data-dismiss="modal">Delete</button>
+						</div>
+					</div>
+				</div>
+			</div>	
+			<jsp:include page="../../resource/footer.jsp"/>
+        </div>
+	</div>
+	<!-- Page-Level Scripts -->
+    <script>
+    	jQuery(document).ready(function($){
+    		
+    		var STATUS_SUCCESS = 0;
+    		var STATUS_ERROR_SQL = 1;
+    		var STATUS_ERROR_OTHER = 2;
+    		
+    		var allowed_op = 0;
+    		
+    		// common variables declaration
+    		var expandBtn 	= '<button style="display:none" class="expand_collapse_btn expandBtn" data-action="expand" type="button"><i class="fa fa-caret-right"></i></button>';
+    		var collapseBtn = '<button class="expand_collapse_btn collapseBtn" data-action="collapse" type="button"><i class="fa fa-caret-down"></i></button>';
+    		var editPopOver = null;
+    		var countNode = 1;
+    		var nodeNameCheckCounter = 0;
+    		//--------------------------------------------------------------------------------------//
+    		
+    		// function to draw garis
+    		$.fn.drawTreeLine = function(treeClassName){
+    			$('.' + treeClassName).remove();
+    		    this.each( function(){
+    		    	if ($('.treeline',this).length == 0){
+    		    		$(this).prepend('<span class="treeline"></span>')
+    		    	}
+    		    	//set height and top
+    		    	$('.treeline',this).css('height','17px');
+		    		$('.treeline',this).css('top','0px');
+		    		
+		    		//if not first child, height and top is doubled
+		    		if ($(this).is(':not(:first-child)')){
+		    			$('.treeline',this).css('height',$(this).prev().height() + 'px');
+			    		$('.treeline',this).css('top',(-1 * $(this).prev().height() + 17) + 'px');
+		    		}
+    		    })
+    		}
+    		//--------------------------------------------------------------------------------------//
+    		
+    		// function untuk nambah konten item
+    		$.fn.addContent = function(label){
+    			var label = (label!=null)?label:"new_node"    		    
+        		
+   				var content  = '<div class="xml-canvas-item-content">' + 
+	        	'<span class="xml-canvas-handle">&lt;<span class="node-label" contentEditable="">'+label+'</span>&gt;</span>' +
+	        	'</div>';
+		        
+    		    this.prepend(content);
+       		    
+    			//add add button
+       		    var value_type = $(this).data("value_type");
+   				if (value_type == 1 || value_type == 5){
+   					this.prepend('<button class="addChildBtn btn btn-xs btn-primary"><i class="fa fa-plus"></i></button>');
+   				}    					
+   				
+	   			//add delete button
+          		this.prepend('<button type="button" class="deleteThisBtn btn btn-xs btn-danger" data-action="delete" data-target="#deletex" data-backdrop="false" data-toggle="modal"><i class="fa fa-times"></i></button>');
+    		    
+				//var id= $(this).attr('id')
+    		    //append closing tag
+    		    this.append('<div class="xml-canvas-item-content close-tag">&lt;/<span class="close-tag-label">'+label+'</span>&gt;</div>');
+				
+				/* 
+				
+				//if this node is type  1 or 5, add an empty row
+				var value_type = $(this).data("value_type");
+				if (value_type == 1 || value_type == 5){
+					$('#xml_node_description_table tbody').append('<tr><td colspan="4"></td></tr>');
+				} */
+				
+    		}
+    		//--------------------------------------------------------------------------------------//
+    		
+    		// function untuk nambah child node
+    		$.fn.addChild = function(childId, isRoot){
+    			childLi = '<li class="xml-canvas-item xml-canvas-item-dom" id="'+childId+'" data-name="new_node" data-id="'+childId+'" data-value_type="3" data-data_type="" data-value=""></li>';
+    			isRoot = typeof isRoot !== 'undefined' ? isRoot : false;
+							
+    			if (isRoot == true){
+    				if($('#xml_build_nestable > .xml-canvas').length == 0) {
+    					var child  = 
+            				'<ol class="xml-canvas">' +
+            					childLi +
+        					'</ol>'; 
+        				$('#xml-root').prepend(expandBtn + collapseBtn);
+        				$('#xml-root').find(' > .expand_collapse_btn').addClass('root_btn');
+        				$('#xml_build_nestable').append(child);
+    				}
+    				else {
+    					var child  = childLi;
+    					$('#xml_build_nestable').children('.xml-canvas').append(child);
+    				}
+    				return $('#xml_build_nestable').children('.xml-canvas').children('.xml-canvas-item-dom:last');
+    			}
+    			else {
+    				if(this.find('> .xml-canvas').length == 0) {
+        				var child  = 
+            				'<ol class="xml-canvas">' +
+            					childLi +
+        					'</ol>'; 
+        				this.prepend(expandBtn + collapseBtn);
+            		    $('.close-tag',this).before(child);
+        			}
+        			else {
+        				var child  = childLi;
+        				this.children('.xml-canvas').append(child);
+        			}
+    				return this.children('.xml-canvas').children('.xml-canvas-item-dom:last');
+    			}
+    		}
+    		//--------------------------------------------------------------------------------------//
+    		
+    		// function untuk menambah data-data ke dalam node
+    		$.fn.addData = function(id, name, type, datatype, value,dbtable,dbfield){
+    			this.data("id", id);
+    			this.data('name', name);
+    			this.attr('data-value_type', type);
+    			
+    			this.data('data_type', datatype);
+    			this.data('value', value);
+    			this.data('dbtable', dbtable);
+    			this.data('dbfield', dbfield);
+    		}
+    		//--------------------------------------------------------------------------------------//
+    		
+    		// function untuk update Reference ke node ini
+    		$.fn.updateReference = function(oldName){
+    			var top = null;
+    			var newName = this.data('name');
+    			
+    			//if it's root node
+    			if (this.attr('id') == "xml-root") {
+    				top = $('#xml_build_nestable')
+    			}
+    			else {
+    				top = this;
+    			}
+    			top.find('.xml-canvas-item').each(function(){
+    				var completeValue = $(this).data("value");
+    				if (completeValue != null){
+    					var type = $(this).data("value_type");
+        				if (type == 3){
+        					$(this).data("value", completeValue.replace(new RegExp(oldName + "\\.", "ig"),newName+"."));    					
+        				}
+        				else if (type < 3){
+            				$(this).data("value", completeValue.replace(new RegExp("\{\s*" + oldName + "\\.", "ig"),"{" + newName+"."));
+            				//}} DON'T REMOVE THIS LINE.
+        				}	
+    				}
+    			});  
+    		}
+    		//--------------------------------------------------------------------------------------//
+    		
+    		
+    		$.fn.changeStatus = function(status, message){
+    			if (this.data('preventchange') == true){
+    				return 0;
+    			}
+    			if (status != STATUS_SUCCESS){
+    				this.addClass('nodeerror');
+    				var id = $(this).attr('id');
+    				this.find('> .xml-canvas-item-content:not(.close-tag)').after('<div class="error-tooltip label label-danger">'+message+'</div>')
+    				if (this.attr('id') == 'xml-root'){
+    					this.next('#xml_build_nestable').find('.xml-canvas-item .xml-canvas-handle').removeClass('xml-canvas-handle').addClass('xml-canvas-handle-disabled');	
+    				}
+    				else {
+    					this.find('.xml-canvas-item .xml-canvas-handle').removeClass('xml-canvas-handle').addClass('xml-canvas-handle-disabled');
+    					this.data("status",status);
+    				}
+       				$('.active_yes_no_error').show();
+       				$('.active_yes_no_error input').val("1");
+    			}
+    			else {
+    				if (this.hasClass('nodeerror')){
+    					this.removeClass('nodeerror');
+    					var id = $(this).attr('id');
+    					this.find('> .error-tooltip').remove();
+        				if (this.attr('id') == 'xml-root'){
+        					this.next('#xml_build_nestable').find('.xml-canvas-item .xml-canvas-handle-disabled').removeClass('xml-canvas-handle-disabled').addClass('xml-canvas-handle');
+        				} else {
+        					this.find('.xml-canvas-item .xml-canvas-handle-disabled').removeClass('xml-canvas-handle-disabled').addClass('xml-canvas-handle');
+        				}
+        				$('.active_yes_no_error').hide();
+        				$('.active_yes_no_error input').val("0");
+    				}
+    			}
+    		}
+    		
+    		$.fn.makeEditable = function(inputClass,specialData){
+				var id = $(this).attr('id');
+				
+				var nodeType = $(this).data('value_type');
+				editableType = (nodeType==1||nodeType==2)?'textarea':((nodeType==3)?'select':'text');
+				
+				//destroy if exists
+				$('#tr_' + id + ' .' + inputClass).editable('destroy');
+				$('#tr_' + id + ' .' + inputClass).typeahead('destroy');
+				
+				if (inputClass == 'isian_value_type'){
+					$('#tr_' + id + ' .' + inputClass).editable({
+					    placement: 'bottom',
+					    onblur: 'ignore',
+					    value: nodeType,
+					    source:specialData,
+					    success: function(response, newValue) {
+							$('#' + id).data("value_type", newValue);
+							$('#' + id).attr("data-value_type", newValue);
+							if (newValue == 1 || newValue == 5){
+								if ($('#' + id + ' > .addChildBtn').length == 0){
+									$('#' + id + ' > .xml-canvas-item-content:not(".close-tag")').before('<button class="addChildBtn btn btn-xs btn-primary"><i class="fa fa-plus"></i></button>');	
+								}
+							}
+							else {
+								$('#' + id + ' > .addChildBtn').remove();
+							}
+							validateNode(id);
+							$('#xml_node_description_table tbody').addRow(id,$('#tr_'+id));
+					    }
+					});	
+				}
+				else if (inputClass == 'isian_value'){
+					var options = [];
+	/*				var parent = $(this).closest('.xml-canvas-item-dom');
+					if (parent.data('value_type') == 1){
+						var id = parent.data('id');
+						var name = parent.data('name');
+						var columns = parent.data('columns') || 0;
+						var ukr = columns.length;
+						if (columns != "loading"){
+							for (var i = 0;i<ukr;i++) options.push(name + "." + columns[i]);	
+						}
+					} */
+					$(this).parents('.xml-canvas-item-dom').each( function(){
+						if ($(this).data('value_type') == 1){
+							var id = $(this).data('id');
+							var name = $(this).data('name');
+							var columns = $(this).data('columns') || 0;
+							var ukr = columns.length;
+							if (columns != "loading"){
+								for (var i = 0;i<ukr;i++) options.push(name + "." + columns[i]);	
+							}
+						}
+					});
+					if (nodeType == 3){
+						$('#tr_'+id+' .isian_value').editable({
+						    placement: 'bottom',
+						    onblur: 'ignore',
+						    type:editableType,
+						    value: $('#' + id).data('value'),
+						    source: options,
+						    success: function(response, newValue) {
+						    	$('#' + id).data("value", newValue);
+						    	validateNode(id);
+						    }
+						});	
+					}
+					else {
+						$('#tr_'+id+' .isian_value').editable({
+						    placement: 'bottom',
+						    onblur: 'ignore',
+						    type:editableType,
+						    success: function(response, newValue) {
+						    	console.log("newValue",newValue);
+						    	$('#' + id).data("value", newValue);
+						    	validateNode(id);
+						    }
+						});
+						
+						$('#tr_'+id+' .isian_value').on('shown.bs.popover', function () {
+							$('.popover textarea').atwho({
+							    at: "{",
+							    limit: 100,
+							    suffix: "}",
+							    startWithSpace: false,
+							    data: options
+							    
+							});
+						});
+					}
+				}
+				else if (inputClass == 'isian_dbtable'){
+					$('#tr_'+id+' .' + inputClass).editable({
+					    placement: 'bottom',
+					    onblur: 'ignore',
+					    success: function(response, newValue) {
+					    	$('#' + id).data("dbtable", newValue);
+					    	validateNode(id);
+					    }
+					});
+				}
+				else if (inputClass == 'isian_dbfield'){
+					$('#tr_'+id+' .'+inputClass).editable({
+					    placement: 'bottom',
+					    onblur: 'ignore',
+					    success: function(response, newValue) {
+					    	$('#' + id).data("dbfield", newValue);
+					    	validateNode(id);
+					    }
+					});
+				}
+				
+			}
+
+    		
+    		function validateNode(id){
+    			
+    			var elm = $('#'+id);
+    			
+    			//if download isn't allowed, don't even try to validate
+    			var yesCheck = true;
+    			if ($('[name=allowed_op]:checked').val() == 1){
+    				var yesCheck = false;
+    			}
+    			
+    			//set as correct in the beginning
+    			elm.changeStatus(STATUS_SUCCESS, null);
+    			
+    			var type = elm.data("value_type");
+    			var sql = elm.data("value");
+    			var name = elm.data("name");
+    			var parentType = elm.parent().closest('.xml-canvas-item-dom').data("value_type");
+    			var prevColumns = elm.data('columns');
+    			
+    			//set column status as loading
+    			elm.data('columns','loading');    	    			
+    			
+    			//set error = false di awal
+    			var error = 0;
+    			
+    			//if nodename contains non alphanumeric or underscore characters
+    			var myRegexp = /^[a-zA-Z0-9_]+$/ig;
+				var match = myRegexp.exec(name);
+				
+				if (match == null){
+					error = 1;
+					elm.changeStatus(STATUS_ERROR_OTHER, "<spring:message code='xml.creator.error.nonAlphanum' />")
+				}				
+    			
+    			//if node is empty
+    			if (yesCheck && type < 5 && (sql=="" || sql == null)){
+    				error = 1;
+    				elm.changeStatus(STATUS_ERROR_OTHER,"<spring:message code='xml.creator.error.emptyValue' />");
+    			}
+    			
+    			//check if there are nodes with the same name
+    			elm.siblings('.xml-canvas-item-dom').each( function(){
+    				if ( (name.toUpperCase() == $(this).data('name').toUpperCase()) && (id != $(this).attr('id'))) {
+    					elm.changeStatus(STATUS_ERROR_OTHER, "<spring:message code='xml.creator.error.duplicateName' />" + name);
+    					error = 1;
+    					return false;
+    				}
+    			});
+    			
+    			//check if there's a misplaced node (only SOURCE and NOVALUE can have children)
+    			if (error == 0 && type > 1 && type < 5 && elm.find('ol .xml-canvas-item-dom').length > 0){
+    				var typeName = (type == 2)?"Formula":((type==3)?"Field":"Text");
+    				elm.changeStatus(STATUS_ERROR_OTHER, "<spring:message code='xml.creator.error.wrongHierarchy1'/> "+typeName + " <spring:message code='xml.creator.error.wrongHierarchy2'/>");
+    				error = 1;
+    				
+    			}
+    		
+    			//check if the referenced field is available
+    			//if  NOT AVAILABLE, set this node as error
+    			//untuk yang tipe = 3 dulu...
+				if (yesCheck && error == 0 && type == 3){
+    				var keyValue = elm.data("value").split("\.");
+					var key = keyValue[0];
+					var value = keyValue[1];
+					var arrParents = elm.parents('[data-value_type=1]');
+					arrParents.each ( function(){
+						if ($(this).data('name') == key){							
+							if($(this).data('columns') != "loading" && $.inArray(value, $(this).data('columns')) == -1){	
+								elm.changeStatus(STATUS_ERROR_OTHER, key + " <spring:message code='xml.creator.error.updatedParent' /> " + value);
+								error = 1;
+							}
+						}
+							
+					});
+    			}
+				
+    			//klo belum error DAN (kalau tipe 1 atau 2)
+    			if (yesCheck && error == 0 && type <= 2){
+    				
+       				$.post('${pageContext.request.contextPath}/admin/xml/validateSQL',
+       					{id:id,type:type,sql:sql},
+       					function(returned){
+       						var status = returned.data.queryStatus;
+       						var message = returned.data.queryMessage;
+       						var result = returned.data.queryResult;      						
+       						
+       						elm.changeStatus(status, "<spring:message code='xml.creator.error.sqlError' /> " + message);
+       						
+	       					//set field data for this node to be used as reference by children nodes
+       		    			//also, if children nodes already reference to a field in this node.. 
+       		    			//..and the fields in this node are changed, reset children nodes' value
+       		    			if (type == 1){
+       		    				if (result!=null){
+           		    				result.sort();
+           		    			}
+           		    			elm.data('columns', result);
+           		    			//validate lagi anak-anaknya
+           		    			var top = elm;
+           		    			
+           		    			top.find('.xml-canvas-item').each(function(){
+           		    				var id = $(this).attr('id');
+           		    				var childElm = $(this);
+           		    				var typeChild = childElm.data('value_type');
+           		    				var valueChild = childElm.data('value');
+           		    				
+           		    				if (typeChild == 3){
+           		    					childElm.makeEditable("isian_value");
+           		    					validateNode(id,true);
+           		    				}
+           		    				else if (typeChild < 3){
+           		    					childElm.makeEditable("isian_value");
+	           		 					var myRegexp = /\{\s*(\w+)\.(\w+)\s*\}/ig;
+	           		 					var match = myRegexp.exec(valueChild);
+	           		 					var keepGoing = true;
+	           		 					var counter = 0;
+	           		 					while (match != null && keepGoing == true) {
+	           		 						
+	           		 						var key = match[1];
+	           		 						var value = match[2];
+	           		 						var arrParents = $(this).parents('[data-value_type=1]');
+	           		 						
+	           		 						arrParents.each( function(){
+	           		 							if ($(this).data('name') == key){
+	           		 								if($(this).data('columns') != "loading" && $.inArray(value, $(this).data('columns')) == -1){
+	           		 									childElm.changeStatus(STATUS_ERROR_OTHER, key + " <spring:message code='xml.creator.error.updatedParent' /> " + value);
+	           		 									childElm.data('preventchange',true);
+	           		 									keepGoing = false;
+	           		 								}
+	           		 							}
+	           		 								
+	           		 						}); 
+	           		 						match = myRegexp.exec(valueChild);
+	           		 					}
+	           		 				}
+           		    			});
+       		    			}
+           			})        			
+    			}
+    			//alert('hello')
+    		}
+    		
+    		function validateAll(){
+    			$('#xml-root').removeData('preventchange');
+    			validateNode("xml-root");    			
+    			$('.xml-canvas-item').each( function(){
+    				$(this).removeData('preventchange');
+    				var id = $(this).attr('id');
+    				validateNode(id);
+    			});
+    		}
+    		
+    		function validateThisAndChildren(id){
+    			$('#' + id).removeData('preventchange');
+    			validateNode(id);
+    			$('#' + id).find('.xml-canvas-item').each( function(){
+    				$(this).removeData('preventchange');
+    				var id = $(this).attr('id');
+    				validateNode(id);
+    			});
+    		}
+    		
+    		//$('.xml-canvas .xml-canvas-item-dom').drawTreeLine("treeline");
+    		$('#xml_build_nestable').nestable({
+    			rootClass       : 'xml-canvas-wrapper',
+    			listNodeName    : 'ol',
+    	        itemNodeName    : 'li',
+    	        listClass       : 'xml-canvas',
+    	        itemClass       : 'xml-canvas-item',
+    	        dragClass       : 'xml-canvas-dragel',
+    	        handleClass     : 'xml-canvas-handle-new',
+    	        collapsedClass  : 'xml-canvas-collapsed',
+    	        placeClass      : 'xml-canvas-placeholder',
+    	        noDragClass     : 'xml-canvas-nodrag',
+    	        emptyClass      : 'xml-canvas-empty',
+    	        expandBtnHTML   : expandBtn,
+    	        collapseBtnHTML : collapseBtn,
+    	        maxDepth		: 30
+    		});
+    		
+    		
+    		//--------------------------------------------------------------------------------------//
+    		
+    		//when expanding/collapsing button is clicked, show/hide corresponding table row
+    		$('body').on('click', '.expand_collapse_btn:not(.root_btn)', function() {
+    			generateParamTable();
+    		});
+    		//when restructuring dom (dragging nodes), draw treeline, and revalidate
+    		$('#xml_build_nestable').on('change', function() {
+    		    //$('.xml-canvas .xml-canvas-item-dom').drawTreeLine("treeline");
+    		    validateAll();
+    		});
+    		//--------------------------------------------------------------------------------------//
+    		
+    		//for the button outside the nestable (root note)
+    		$('body').on('click', '.root_btn', function() {
+    		    $(this).toggle();
+    		    $(this).siblings('.expand_collapse_btn').toggle();
+    		    $('#xml_build_nestable').toggle();
+    		    $('#xml-root').toggleClass('xml-canvas-collapsed');
+    		    generateParamTable();
+    		    //$('.xml-canvas .xml-canvas-item-dom').drawTreeLine("treeline");
+    		});
+    		//--------------------------------------------------------------------------------------//
+    		
+    		
+    		//when add child button is clicked
+    		$('body').on('click', '.addChildBtn', function() {
+    			if ($(this).closest('.xml-canvas-item-dom').hasClass('xml-canvas-collapsed')){
+    				$(this).siblings('.expandBtn').trigger('click');
+    				$(this).closest('.xml-canvas-item-dom').removeClass('xml-canvas-collapsed');
+    			}
+    			
+    			var isRoot = false;
+    			if ($(this).closest('.xml-canvas-item-dom').attr('id') == 'xml-root') {
+    				isRoot = true;
+    			}
+    			var childId = "node-" + countNode;
+    			countNode++;
+    		    $(this).closest('.xml-canvas-item-dom').addChild(childId, isRoot).addContent();
+    		    $('#' + childId).addClass('xml-canvas-collapsed');
+    		    //$('.xml-canvas .xml-canvas-item-dom').drawTreeLine("treeline");
+    		    generateParamTable();
+    		    //$('#' + childId).find('> .xml-canvas-item-content:not(.close-tag)').trigger('click');
+    		    validateNode(childId);
+    		    
+    		});
+    		//--------------------------------------------------------------------------------------//
+    		
+    		//when node is clicked (EDIT FUNCTION)
+    		/*$('body').on('click','.xml-canvas-item-dom > .xml-canvas-item-content', function(){ 
+    			//initialize variable for autocomplete
+    			var autoCompleteFields = [];
+    			//kalo mode edit
+    			if ($('.edit_node_form').data('mode') != 'add') {
+    				$('.edit_node_form').data('mode','edit');
+    			}
+
+    			var editId = $(this).closest('.xml-canvas-item-dom').attr('id');
+    			
+    			$('.edit_node_form').data('editId',editId);
+
+    				
+    			editPopOver = $(this).popover({
+   	    				placement	: "right",
+   	    				container	: "#page-wrapper",
+   	    				title		: "Edit Tag <a class='close_popover'><i class='fa fa-times'></i></a>",
+   	    				trigger		: "manual",
+   	    				html		: "true",
+   	    				content		: function(){
+   	    					return $('#edit_node_form_wrapper').html();
+   	    				}
+   	    		});
+
+    			var nodeElm = $('#' + editId);
+    			var nData = nodeElm.data();
+    			var mode = $('.edit_node_form').data('mode');
+    			
+    			//set node_name
+    			$('.edit_node_form [name=node_name]').attr('value',  (nData['name'] || $('#' + editId + ' > .xml-canvas-item-content > span').text()) );
+    			
+    			//set node_value_type
+   				$('.edit_node_form [name=node_value_type] option').each( function(){
+    				$(this).removeAttr('selected');
+   				})
+    			$('.edit_node_form [name=node_value_type] option[value="'+nData['value_type']+'"]').attr("selected","selected");
+    			
+   				//change color of <select> depending the option chosen
+    			//$('.edit_node_form [name=node_value_type]').css('background-color',$('option[value="'+nData['value_type']+'"]').css('background-color'));
+    			
+   				//populate field with columns data from parent node(s)....
+				var options = [];
+				nodeElm.parents('.xml-canvas-item').each( function(){
+					if ($(this).data('value_type') == 1){
+						var id = $(this).data('id');
+						var name = $(this).data('name');
+						var columns = $(this).data('columns') || 0;
+						var ukr = columns.length;
+						if (columns != "loading"){
+							for (var i = 0;i<ukr;i++) options.push({id:id,name:name,column:columns[i]});	
+						}
+					}
+				})
+				//...including root node
+				var id = $('#xml-root').data('id');
+				var name = $('#xml-root').data('name');
+				var columns = $('#xml-root').data('columns') || 0;
+				var ukr = columns.length;
+				if (columns != "loading"){
+					for (var i = 0;i<ukr;i++) options.push({id:id,name:name,column:columns[i]});
+				}
+				
+				//show the options
+				$('select[name=node_value_field]').html("");
+				ukr = options.length;
+				for (var i = 0;i<ukr;i++){
+					$('select[name=node_value_field]').append('<option value="'+options[i].name+'.'+options[i].column+'">'+options[i].name+'.'+options[i].column+'</option>');
+				}
+				if ($('select[name=node_value_field] option[value="' + nData['value'] + '"]').length){
+					$('select[name=node_value_field] option[value="' + nData['value'] + '"]').attr('selected','selected');	
+				}
+				else {
+					$('select[name=node_value_field]').prepend('<option value="">Please choose field</option>');
+				}
+				//populate source & formula input text with autocomplete
+				ukr = options.length;
+				for (var i = 0;i<ukr;i++){
+					autoCompleteFields.push(options[i].name+'.'+options[i].column);
+				}
+				
+    			//SET NODE_value_TYPE
+    			//kalo yg dipilih selain novalue
+    			if ($('.edit_node_form [name=node_value_type]').val() < 5){
+    				//remove valuewrapper-disabled class
+    				$('.valuewrapper-disabled textarea').removeAttr('disabled');
+    				$('.valuewrapper').removeClass('valuewrapper-disabled');
+    				
+    				//kalo value type yang dipilih = field, 
+    				if ($('.edit_node_form [name=node_value_type]').val() == 3){
+    					//show dropdown data type
+    					$('.valuewrapper').removeClass('textinput');
+    					$('.valuewrapper textarea').attr('placeholder', 'Field Name');
+    					
+    					$('.edit_node_form [name=node_data_type] option').each( function(){
+    	    				$(this).removeAttr('selected');
+    	   				})
+    	   				// if ($('.edit_node_form [name=node_data_type] option[value="'+nData['data_type']+'"]').length){
+    	   					//$('.edit_node_form [name=node_data_type] option[value="'+nData['data_type']+'"]').attr("selected","selected");	
+    	   				//}
+    	   				//else {
+    	   					//alert($('.edit_node_form [name=node_data_type] option[value="'+nData['data_type']+'"]').length);
+    	   				}
+   						
+    				}
+    				//kalo value type yang dipilih lainnya,
+    				else {
+    					//hide dropdown data type
+    					$('.valuewrapper').addClass('textinput');
+    					if ($('.edit_node_form [name=node_value_type]').val() == 1 || $('.edit_node_form [name=node_value_type]').val() == 2){
+    						$('.valuewrapper textarea').attr('placeholder', 'SQL Query');
+    					}
+    					else {
+    						$('.valuewrapper textarea').attr('placeholder', 'Free Text');
+    					}
+    				}
+    			}
+    			else {
+    				$('.valuewrapper').addClass('textinput');
+    				$('.valuewrapper').addClass('valuewrapper-disabled');
+    				$('.valuewrapper-disabled textarea').attr('placeholder','not applicable');
+    			}
+    			
+    			//set node_value
+    			$('.edit_node_form [name=node_value]').text(nData['value']);
+    			
+    			if ((nData['value']) == "" && nodeElm.data('value_type') == 3){
+    				$('.edit_node_form [name=node_value]').attr('value',$('select[name=node_value_field]').val());
+    			}
+    			
+    			//set node dbtable n dbfield (buat upload purpose)
+    			$('.edit_node_form [name=dbtable]').attr('value',(nData['dbtable']));
+    			$('.edit_node_form [name=dbfield]').attr('value',(nData['dbfield']));
+    			
+    			//if it's root, the node data type dropdown is disabled
+    			if(editId == "xml-root"){
+    				$('.edit_node_form [name=node_value_type]').prop("disabled",true)
+    			}
+    			else{
+    				$('.edit_node_form [name=node_value_type]').prop("disabled",false)
+    			}
+    			
+    			//activate first tab
+				$('.nav-tabs li').removeClass('active');
+				$('.nav-tabs li:first-child').addClass('active');
+				$('.tab-content .tab-pane').removeClass('active');
+				$('.tab-content .tab-pane:first-child').addClass('active');
+				
+    			editPopOver.popover('show');
+    			
+    			
+    			$('.popover .valuewrapper textarea').atwho({
+				    at: "{",
+				    limit: 20,
+				    suffix: "}",
+				    startWithSpace: false,
+				    data:autoCompleteFields
+				});
+    			
+    		}); */
+    		//--------------------------------------------------------------------------------------//
+    	
+    		
+    		//when delete button is clicked
+    		$('body').on('click', '.deleteThisBtn', function(e) {
+    			$('#deletex').data("deletedEl",$(this).closest('.xml-canvas-item-dom'));
+    			if ($(this).siblings('.xml-canvas').length > 0){
+    				$('#deletex .modal-body').html('<spring:message code="xml.creator.node.delete.all" />');
+    			}
+    			else {
+    				$('#deletex .modal-body').html('<spring:message code="xml.creator.node.delete" />');
+    			}
+    			e.stopPropagation();
+
+    			$('#deletex').modal('show');
+    		});
+    		
+    		//when delete button is confirmed
+    		$('body').on('click', '#deleteNodeConfirmed', function() {
+    			var deletedEl = $('#deletex').data("deletedEl");
+    			
+    			var ol = deletedEl.parent();
+    			
+    			var parentItem = ol.closest('.xml-canvas-item-dom');
+    			
+    			//delete this item
+    		    deletedEl.remove();
+    		    
+    			//if the OL object is empty, delete it too. 
+    		    if (ol.is(':empty')){
+    		    	ol.remove();
+    		    	//delete the buttons too
+        			parentItem.find('> .expand_collapse_btn').remove();
+				}
+    			
+    			//for root data, same as above function
+    		    if (!$('#xml_build_nestable .xml-canvas-item').length) {
+    		    	$('#xml-root > .expand_collapse_btn').remove();
+    		    }
+    			
+    		    generateParamTable();
+    			
+    		    //$('.xml-canvas .xml-canvas-item-dom').drawTreeLine("treeline");
+    		});
+    		//--------------------------------------------------------------------------------------//    		
+			
+    		//when changing the value_type dropdown
+    		$('body').on('change','.edit_node_form [name=node_value_type]', function() {
+				
+    			
+    			//change color of <select> depending the option chosen
+    			$(this).css('background-color',$('option[value="'+$(this).val()+'"]').css('background-color'));
+    			
+    			var form = $(this).closest('.edit_node_form');
+    			var value_type_val = form.find('[name=node_value_type]').val();
+    			
+    			form.validate();
+    			if (value_type_val == 3){
+    				form.find('[name=node_value_field]').rules('add',{
+    					required : true
+    				});
+    				form.find('[name=node_value]').rules('remove','required')
+    			}
+    			else if  (value_type_val < 5){
+    				form.find('[name=node_value]').rules('add',{
+    					required : true
+    				});
+    				form.find('[name=node_value_field]').rules('remove','required')
+    			}
+    			$('.valuewrapper').find('select , textarea').removeClass('error');
+    			$('.valuewrapper .error').remove();
+    			
+    			if ($('.popover .edit_node_form [name=node_value_type]').val() < 5){
+    				//remove valuewrapper-disabled class
+    				$('.valuewrapper').removeClass('valuewrapper-disabled');
+    				
+    				//kalo value type yang dipilih = field, 
+    				if ($('.popover .edit_node_form [name=node_value_type]').val() == 3){
+    					//show dropdown data type
+    					$('.valuewrapper').removeClass('textinput');
+    					//$('.valuewrapper textarea').attr('placeholder', 'Field Name');					
+    				}
+    				//kalo value type yang dipilih lainnya,
+    				else {
+    					//hide dropdown data type
+    					$('.valuewrapper').addClass('textinput');
+    					
+    					//clear the input
+    					$('.edit_node_form [name=node_value]').val("");
+    					
+    					if ($('.popover .edit_node_form [name=node_value_type]').val() == 1 || $('.popover .edit_node_form [name=node_value_type]').val() == 2){
+    						$('.valuewrapper textarea').attr('placeholder', 'SQL Query');
+    					}
+    					else {
+    						$('.valuewrapper textarea').attr('placeholder', 'Free Text');
+    					}
+    				}
+    				
+        			/* else{
+        				$('.btn_save').attr("disabled", "disabled");
+        			} */
+    			}
+    			else {
+    				$('.valuewrapper').addClass('textinput');
+    				$('.valuewrapper').addClass('valuewrapper-disabled');    				
+    				$('.valuewrapper-disabled textarea').attr('placeholder','not applicable');
+    				
+    			}
+    			
+    		})
+    		//--------------------------------------------------------------------------------------//
+    		
+    		//when popover is open, then mouse is clicking outside popover. Or when close button or X button is clicked
+    		$('#page-wrapper').mousedown(function(event) {
+    		    if (!$(event.target).closest(".popover").length && editPopOver != null) {
+    		    	$('.close_popover').trigger('click');
+    		    }
+    		});
+    		$('body').on('click','.close_popover, .btn_close', function(e){
+    			var editedElmId = $('.edit_node_form').data('editId');
+    			editPopOver.popover('destroy');    			
+    			if ($('.edit_node_form').data('mode') == 'add'){
+    				$('#deletex').data("deletedEl",$('#' + editedElmId));
+    				$('#deleteNodeConfirmed').trigger('click');
+    			}
+    			
+    			$('.edit_node_form').data('mode', null);
+    		});
+    		//--------------------------------------------------------------------------------------//
+    		
+    		// focus (and highlight) nama node saat edit node form muncul
+    		$('body').on('shown.bs.popover', ".xml-canvas-item-content", function(){
+				   	$('.edit_node_form [name=node_name]').focus();
+				   	$('.edit_node_form [name=node_name]').select();
+    		});
+    		//--------------------------------------------------------------------------------------//
+    		
+/*     		// on clicking save on edit dialog
+    		$('body').on('click', '.btn_save', function(){
+    			var form = $(this).closest('.edit_node_form');
+    			var name_val = form.find('[name=node_name]').val();
+    			var value_type_val = form.find('[name=node_value_type]').val();
+    			var data_type_val = form.find('[name=node_data_type]').val();
+    			var value_val = (value_type_val == 3)?(form.find('[name=node_value_field]')).val():(form.find('[name=node_value]').val());
+    			var db_table = form.find('[name=dbtable]').val();
+    			var db_field = form.find('[name=dbfield]').val();
+    			
+    			form.validate();
+    			
+    			if (value_type_val == 3){
+    				form.find('[name=node_value_field]').rules('add',{
+    					required : true
+    				});
+    				form.find('[name=node_value]').rules('remove','required')
+    			}
+    			else if  (value_type_val < 5){
+    				form.find('[name=node_value]').rules('add',{
+    					required : true
+    				});
+    				form.find('[name=node_value_field]').rules('remove','required')
+    			}
+    			
+    			
+    			if (form.valid()){
+    				var nodeId = $('.edit_node_form').data('editId');
+        			var node = $('#' + nodeId);
+        			
+        			//get old value untuk update reference
+        			var oldName = node.data('name');
+        			
+        			node.data('id', nodeId);
+        			node.data('name', name_val);
+        			node.data('value_type', value_type_val);
+        			node.data('data_type', data_type_val);
+        			node.data('value', value_val.replace(new RegExp("\"", "ig"),"'").replace(new RegExp(/[\n\r]/ig)," "));
+        			node.data('dbtable',db_table);
+        			node.data('dbfield',db_field);
+        			
+        			//for styling, so value type must be written explicitely in dom
+        			node.attr('data-value_type', value_type_val);
+
+        			//set the node text label to its data-name;
+        			$('#' + nodeId + ' > .xml-canvas-item-content > span').html("&lt;" + node.data('name') + "&gt;");
+        			$('#' + nodeId + ' > .xml-canvas-item-content.close-tag').html("&lt;/" + node.data('name') + "&gt;");
+        			
+    				//destroy popover
+        			editPopOver.popover('destroy');
+        			
+        			$('.edit_node_form').data('mode', null);
+        			
+        			//update references
+        			node.updateReference(oldName);
+        			
+        			validateAll();
+        			
+        			$('#saveAll').prop('disabled',false);
+        			
+        		    //first, remove menu adder
+        			//$('#' + nodeId).find('> .menu-adder').remove();
+        			//but if type == 1 or 5, add menu adder
+        			/* if (value_type_val == 1 || value_type_val == 5){
+            			$('#' + nodeId + ' > .xml-canvas-item-content.close-tag').before('<div class="menu-adder"><div class="xml-canvas-item-content">&lt;new_node&gt;</div><div class="xml-canvas-item-content">&lt;/new_node&gt;</div></div><div class="collapsed_ellipsis">...</div>');	
+        			} * /
+        			
+        			$('#' + nodeId).find('> .collapsed_ellipsis').remove();
+        			$('#' + nodeId).find('> .addChildBtn').remove();
+        			
+        			//but if type == 1 or 5, add menu adder
+        			if (value_type_val == 1 || value_type_val == 5){
+            			$('#' + nodeId + ' > .xml-canvas-item-content.close-tag').before('<div class="collapsed_ellipsis">...</div>');
+            			$('#' + nodeId + ' > .deleteThisBtn').after('<button class="addChildBtn btn btn-xs btn-primary"><i class="fa fa-plus"></i></button>');            			
+        			}
+    			}
+    		}); */
+			//--------------------------------------------------------------------------------------//
+    		
+			//add validator for checking name availability
+			jQuery.validator.addMethod("checkAvailability", function(value, element) {
+				return this.optional(element) || $('#xml_name').data('isAvailable');
+			}, 'Name already exists. Please use different name.');
+			
+			//on blur, check if name already exist in db
+			$('#xml_name').keyup( function(){
+				
+				nodeNameCheckCounter++;
+				var nama = $(this).val();
+				var id = '${mainData.id}';
+				$.post('${pageContext.request.contextPath}/admin/xml/validateName',{name:$(this).val(),id:id,c:nodeNameCheckCounter},
+				//on success: 
+					function(returned){
+						if (returned.data == nodeNameCheckCounter){
+							if (returned.status == 0){
+								$('#xml_name').data('isAvailable',false);	
+							}
+							else $('#xml_name').data('isAvailable',true);
+							$('#xml_master_form').validate().element( "#xml_name" );			
+						}	
+					}
+				);
+			})
+			
+			// save all to database
+			$('body').on('click','#saveAll', function(){
+				var btn = $(this);
+				btn.prop('disabled',true);
+				
+				$('#node_master').val(JSON.stringify($('#xml-root').data()));
+				$('#node_detail').val(JSON.stringify($('#xml_build_nestable').nestable('serialize')));
+				console.log('mode ' + '${mode}');
+				if ('${mode}' === '1'){
+					$('#xml_master_form').attr('action', "${pageContext.request.contextPath}/admin/xml/edit/${mainData.id}");
+				}
+				else{
+					$('#xml_master_form').attr('action', "${pageContext.request.contextPath}/admin/xml/add");
+				}
+				
+				$('#xml_master_form').validate();
+				console.log('validate',$('#xml_master_form').validate());
+				if ($('#xml_master_form').valid()){
+					if ('${mode}' === '1'){
+						$('#loaderImage').show();
+						$.post('${pageContext.request.contextPath}/admin/xml/getStatus',{xmlId:'${mainData.id}'},function(returned){
+							console.log('returned.data',returned.data);
+							if (returned.data == true ) {
+								$('#xml_master_form #submit_all_btn').click();	
+							}
+							else {
+								$('#loaderImage').hide();
+								toastr.error("Editing failed: XML is being generated, please try again later. ",'Cronos Notification');
+								btn.prop('disabled',false);
+							}
+						});
+					}
+					else {
+						$('#xml_master_form #submit_all_btn').click();
+					}
+				}
+				else {
+					btn.prop('disabled',false);
+				}
+			})
+			
+			//--------------------------------------------------------------------------------------//
+			if ('${mode}' === '1'){
+				var nodes = ${nodesData};
+				var isRoot;
+				//root node---------------------------------------------------------------------------
+				//strip out the root
+				
+				//$('#xml-root').html("");
+				
+				//add data to root
+				$('#xml-root').addData(nodes[0].id, nodes[0].dtlxml_node, nodes[0].dtlxml_valuetype, nodes[0].dtlxml_datatype , nodes[0].dtlxml_value,nodes[0].dtlxml_upldtable,nodes[0].dtlxml_upldfield);
+				
+				//add content to root
+				$('#xml-root').addContent(nodes[0].dtlxml_node);
+				
+				//validate node
+				validateNode("xml-root");
+				//---------------------------------end root node--------------------------------------
+				
+				//node anak-anak----------------------------------------------------------------------				
+				var jumNodeAnak = nodes.length; 
+				var stackSize = 0;
+				var firstChild = true;
+				for (var i=1; i<jumNodeAnak;i++){
+					isRoot = (nodes[i].dtlxml_parent == nodes[0].id) ? true : false;
+					$('#saved-node-' + nodes[i].dtlxml_parent).addChild('saved-node-'+ nodes[i].id, isRoot);
+					$('#saved-node-' + nodes[i].id).addData(nodes[i].id, nodes[i].dtlxml_node, nodes[i].dtlxml_valuetype, nodes[i].dtlxml_datatype, nodes[i].dtlxml_value, nodes[i].dtlxml_upldtable, nodes[i].dtlxml_upldfield);
+					$('#saved-node-' + nodes[i].id).addContent(nodes[i].dtlxml_node);
+					//if (isRoot == true) alert('yeah');
+					//alert($('#saved-node-'+ nodes[i].id).data('id'));
+				}
+				//validasi
+				for (var i=1; i<jumNodeAnak;i++){
+					validateNode("saved-node-" + nodes[i].id);
+				}
+				//$('.xml-canvas .xml-canvas-item-dom').drawTreeLine("treeline");
+				//------------------------------------------------------------------end node anak-anak
+				
+			}
+			else {
+				// initialize root node, treeline, and nestable
+	    		$('#xml-root').addContent('root_node');
+	    		$('#xml-root > .xml-canvas-item-content > .deleteThisBtn').remove();
+			}
+			
+			/* //add menu-adder for each node with type 1 or 5
+			$('.xml-canvas-item-dom').each( function(){
+				if ($(this).data("value_type") == 1 || $(this).data("value_type") == 5){
+					$(this).find('> .close-tag').before('<div class="menu-adder"><div class="xml-canvas-item-content">&lt;new_node&gt;</div><div class="xml-canvas-item-content">&lt;/new_node&gt;</div></div><div class="collapsed_ellipsis">...</div>');			
+				}
+			}) */
+			
+			$('.xml-canvas-item-dom').each( function(){
+				if ($(this).data("value_type") == 1 || $(this).data("value_type") == 5){
+					$(this).find('> .close-tag').before('<div class="collapsed_ellipsis">...</div>');			
+				}
+			})
+			
+			//customized root node
+			//prevent this to be deleted, and moved
+			$('#xml-root > .xml-canvas-item-content > .xml-canvas-handle').removeClass('xml-canvas-handle').addClass('xml-canvas-handle-disabled');
+    		$('#xml-root > .xml-canvas-item-content > .deleteThisBtn').remove();
+    		
+			
+    		$('#xml-canvas-wrapper-wrapper').on('mouseover','.xml-canvas-item-dom', function(e){
+    			$(this).addClass('tag_hovered');
+    			var id = $(this).attr("id");
+    			$('#xml_node_description_table tr[data-nodeid="'+id+'"]:not(.tr-filler)').addClass('tr_hovered');
+    			e.stopPropagation();
+    		});
+    		
+			$('#xml-canvas-wrapper-wrapper').on('mouseout','.xml-canvas-item-dom', function(e){
+				$(this).removeClass('tag_hovered');
+				var id = $(this).attr("id");
+				$('#xml_node_description_table tr[data-nodeid="'+id+'"]').removeClass('tr_hovered');
+				e.stopPropagation();
+    		});
+			
+			function generateParamTable(){
+				if (allowed_op == 1) {
+					$('.allowed_op_1').show();
+					$('.allowed_op_2').hide();
+				}
+				else if (allowed_op == 2) {
+					$('.allowed_op_1').hide();
+					$('.allowed_op_2').show();
+				}
+				else if (allowed_op == 3){
+					$('.allowed_op_1').show();
+					$('.allowed_op_2').show();
+				}
+				else if (allowed_op == 0){
+					$('.allowed_op_1').hide();
+					$('.allowed_op_2').hide();
+				}
+				$('#xml_node_description_table tbody').html('');
+						
+				$('.xml-canvas-item-dom > .xml-canvas-item-content').each( function(){
+					if ($(this).hasClass('close-tag')){
+						if (!($(this).parent().hasClass('xml-canvas-collapsed'))){
+							var type = $(this).closest('.xml-canvas-item-dom').data('value_type');
+							if (type == 5 || type == 1){
+								var id = $(this).closest('.xml-canvas-item-dom').attr('id');
+								$('#xml_node_description_table tbody').append('<tr class="tr-filler" data-nodeid="'+id+'">' +
+										'<td/><td/><td/><td/>' +
+									'</tr>');	
+							}
+						}
+					}
+					else {
+						if ($(this).parent().parent().closest('.xml-canvas-collapsed').length == 0){
+							var node_id = $(this).closest('.xml-canvas-item-dom').attr('id');
+							$('#xml_node_description_table tbody').addRow(node_id,null);
+						}
+					}
+					
+				});
+			}
+			
+			$.fn.addRow = function(id, row){
+				var elm = $('#' + id);
+				var data = elm.data();
+				var type = data.value_type;
+				
+				if (row == null){
+					this.append('<tr id="tr_'+id+'" data-nodeid="'+id+'">');
+					row = $('#tr_'+id);
+				}
+							
+					
+				var valuetypesource = [{value: 1, text: "Source"}, {value: 2, text: "Subsource"},
+		                               {value: 3, text: "Field"},{value: 4, text: "FreeText"},
+		                               {value: 5, text: "Label"}];
+						 
+				var trContent ='<td><div class="node-param-input form-control input-md isian_value_type" data-type="select" data-title="Node Type"></div></td>'; 
+				var trContent1 = '<td><div class="node-param-input form-control input-md isian_value" data-title="Node Value" data-showbuttons="bottom" data-nodedata="value">'+((type==5)?'<i class="fa fa-ban"></i>':(data.value || ""))+'</div></td>';
+				var trContent2 = '<td><div class="node-param-input form-control input-md isian_dbtable isian_upload" data-type="text" data-title="Table Name (for upload)" data-nodedata="dbtable">'+((type==5 || type==4)?'<i class="fa fa-ban"></i>':(data.dbtable || ""))+'</div></td>'+
+							'<td><div class="node-param-input form-control input-md isian_dbfield isian_upload" data-type="text" data-title="Field Name (for upload)" data-nodedata="dbfield">'+((type==5 || type == 1 || type==4)?'<i class="fa fa-ban"></i>':(data.dbfield || ""))+'</div></td>';								
+   				if (allowed_op == 2) {
+   					trContent += trContent1;
+   					console.log(trContent);
+   				}
+   				else if (allowed_op == 1) trContent += trContent2;
+   				else if (allowed_op == 3) trContent += trContent1 + trContent2;
+   				
+				row.html(trContent);
+				
+				elm.makeEditable('isian_value_type',valuetypesource);
+				if (type != 5){
+					if (allowed_op > 1) elm.makeEditable('isian_value');
+					if (type != 4) {
+						if (allowed_op%2 == 1){
+							elm.makeEditable('isian_dbtable');
+							if (type != 1) elm.makeEditable('isian_dbfield');	
+						}
+					}
+				}
+			}			
+
+			$('#xml-canvas-wrapper-wrapper').on('blur','.node-label', function(){
+				var text = $(this).text().replace(/\n/g,'');
+				var node_id = $(this).closest('.xml-canvas-item-dom').attr('id');
+				$(this).closest('.xml-canvas-item-dom').find('> .close-tag > .close-tag-label').text(text);
+				$(this).closest('.xml-canvas-item-dom').data('name',text);
+				validateNode(node_id);
+			});
+			
+			//on change pada input dalam tr
+			$('#xml_node_description_table').on('blur','input', function(){
+				var node_id = $(this).closest('tr').data('nodeid');
+				$('#' + node_id).data($(this).data('nodedata'), $(this).val());
+				validateNode(node_id);
+			});
+			
+			//on change pada select dalam tr
+			/* $('#xml_node_description_table').on('change','select', function(){
+				var node_id = $(this).closest('tr').data('nodeid');
+				$('#' + node_id).data($(this).data('nodedata'), $(this).val());
+				if ($(this).val() == 1 || $(this).val() == 5){
+					if ($('#' + node_id + ' > .addChildBtn').length == 0){
+						$('#' + node_id + ' > .xml-canvas-item-content:not(".close-tag")').before('<button class="addChildBtn btn btn-xs btn-primary"><i class="fa fa-plus"></i></button>');	
+					}
+				}
+				else {
+					$('#' + node_id + ' > .addChildBtn').remove();
+				}
+				validateNode(node_id);
+			}); */
+						
+			allowed_op = 0;
+			$('[name=allowed_op]:checked').each( function(){
+				allowed_op = Number(allowed_op) + Number($(this).val());
+			});
+			
+			generateParamTable();
+			
+			
+			$('[name=allowed_op]').on('change', function(){
+				allowed_op = 0;
+				$('[name=allowed_op]:checked').each( function(){
+					allowed_op = Number(allowed_op) + Number($(this).val());
+				});
+				console.log("allowed_op",allowed_op);
+				generateParamTable();
+				validateAll();
+			})
+    	});
+		
+    </script>
+</body>
+</html>

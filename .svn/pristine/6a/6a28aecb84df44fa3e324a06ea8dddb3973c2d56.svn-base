@@ -1,0 +1,58 @@
+	#statusDataContainer{
+		position:relative;
+		display:block;
+		width:100%;
+		height:300px;
+		border:1px solid gray;
+		background:#eee;
+	}	
+
+	.shape {
+		position:absolute;
+		border:2px solid #383;
+		background-color:#dfd;
+		border-radius:5px;
+		min-width:100px;
+		height:75px;
+		text-align:center;
+		padding:0 10px;
+		line-height:75px;
+		cursor:move;
+	}
+	
+  	.dock{
+		width:8px;
+		height:75px;
+		position:absolute;
+		top: 0px;
+		cursor:crosshair;
+		border-radius: 4px;
+	}
+
+	.source{
+		left:-5px;
+	}
+
+	.target{
+		right:-5px;
+	}
+
+	.status_hover_icon.fa{
+		position:absolute;width:25px;height:20px;top:3px;display:none
+	}
+	
+	.status_hover_icon.edit {
+		color:#030;right:18px
+	}
+	
+	.status_hover_icon.delete {
+		color:#f00;right:3px
+	}
+	
+	<script type="text/javascript">
+$(function() {
+    $("#statusDataContainer").resizable();
+});
+
+</script>
+

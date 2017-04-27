@@ -1,0 +1,170 @@
+(function () {
+  'use strict';
+
+  angular.module('Cronos.pages.usersettings')
+      .controller('userSettingsUserAddBulkController', userSettingsUserAddBulkController);
+
+    userSettingsUserAddBulkController.$inject = ['$scope', '$q', '$location', '$rootScope', 'ajax', 'cronosToastr', '$stateParams', '$uibModal', '$uibModalStack'];
+    function userSettingsUserAddBulkController($scope, $q, $location, $rootScope, ajax, cronosToastr, $stateParams, $uibModal, $uibModalStack) {
+    	
+        function getRoleGroup(ids){
+            ajax.http('POST', {}, '/api/role/getrole', 'application/json')
+                .then(function(data) {
+                    if(data.status == 200){
+                        $scope.listRole = data.data;
+                        getGroup(ids);
+                    } else {
+                        cronosToastr.error(data.status+' : '+data.message);
+                    } 
+                }, function(error) {
+                    console.log('error', error);
+                    cronosToastr.error(error.status+' : '+error.message);
+            });
+            
+        }
+
+        function getGroup(ids){
+            ajax.http('POST', {}, '/api/group/getgroup', 'application/json')
+                .then(function(data) {
+                    if(data.status == 200){
+                        $scope.listGroup = data.data;
+                        if(ids){
+                             getUserData(ids);
+                         }
+                    } else {
+                        cronosToastr.error(data.status+' : '+data.message);
+                    }
+                }, function(error) {
+                    cronosToastr.error(error.status+' : '+error.message);   
+            });
+        }
+        
+    	var user = this;
+        $scope.height = 300;
+        $scope.heightBulk = 209;
+        $scope.userSave = true;
+        $scope.userBack = true;
+        $scope.isEdit = false;
+        
+        user.bussinessUnit = [
+            {
+                module: "CPM",
+                bussinessUnit: "wew, wew, wew"
+            },
+            {
+                module: "DFS",
+                bussinessUnit: "ngiha, ngiha"
+            }
+        ];
+
+
+        user.userBulk = [
+        	{
+        		userId: "USER001",
+        		userName: "TEST CUY",
+        		email: "a@a.com"
+        	},
+        	{
+        		userId:  "USER002",
+        		userName: "Nyoba dulu gan",
+        		email: "aasdgg@sdafhyyha.com"
+        	},
+        	{
+        		userId: "USER003",
+        		userName: "Ini lagi iseng",
+        		email: "hhaasgrvv@yyasd.com"
+        	}
+        ];
+
+        $scope.addBranch = function() {
+            $scope.height = 300;
+            user.bussinessUnit.push({
+                module: "",
+                bussinessUnit: ""
+            });
+        };
+
+        $scope.deleteBranch = function(bu) {
+            console.log(bu);
+            var i = user.bussinessUnit.indexOf(bu);
+            user.bussinessUnit.splice(i, 1);
+            if(user.bussinessUnit.length < 1) {
+                $scope.height = 0;
+            } 
+        };
+
+        $scope.addBulk = function() {
+            $scope.height = 209;
+            modalShow('app/pages/administrator/user.settings/user/addbulk.html');
+        };
+
+        $scope.deleteBulk = function(bulk) {
+            var i = user.userBulk.indexOf(bulk);
+            user.userBulk.splice(i, 1);
+            if(user.userBulk.length < 1) {
+                $scope.height = 0;
+            } 
+        };
+
+        $scope.uploadBulk = function() {
+        	modalShow('app/pages/administrator/user.settings/user/uploadbulk.html');
+        };
+
+        $scope.showBranch = function () {
+
+            console.log($scope.businessUnit);
+
+        };
+
+        $scope.submitUserBulk = function(isValid){
+            //console.log(isValid);
+            if(isValid) {
+            	user.userBulk.push({
+	                userId: this.userid,
+	        		userName: this.name,
+	        		email: this.email
+	            });
+	            $uibModalStack.dismissAll();
+            } 
+        };
+
+        $scope.submitUpload = function(isValid) {
+        	if (isValid) {
+        		console.log('valid');
+        	}
+        };
+        
+        getRoleGroup();
+
+        $scope.change = function(user) {
+        	console.log($scope.user);
+            $scope.user.username = '';
+            $scope.user.password = '';
+            $scope.user.confirmPassword = '';
+            $scope.user.username = '';
+            $scope.user.employeeId = '';
+            $scope.user.email = '';
+            $scope.user.phone = '';
+            $scope.user.status = '';
+            $scope.user.roleId = '';
+            $scope.user.groupId = '';
+        };
+
+        function modalShow(temp){
+            var modalScope = $scope.$new();
+            var modalInstance = $uibModal.open({
+                animation: true,
+                backdrop: 'static',
+                templateUrl: temp,
+                size: 'md',
+                scope: modalScope
+            }).closed.then(function(){
+               
+            });
+            modalScope.modalInstance = modalInstance;
+
+	    };
+
+    }
+
+})();

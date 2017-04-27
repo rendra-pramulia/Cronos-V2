@@ -1,0 +1,86 @@
+[
+    {
+        "id": 1,
+        "username": "admin",
+        "password": "admin",
+        "email": "admin@cronos.cpom",
+        "role": "admin"
+    },
+    {
+        "id": 2,
+        "username": "user",
+        "password": "user",
+        "email": "user@cronos.cpom",
+        "role": "user"
+    },
+    {
+        "id": 3,
+        "username": "editor",
+        "password": "editor",
+        "email": "editor@cronos.cpom",
+        "role": "admin"
+    },
+    {
+        "id": 4,
+        "username": "saya",
+        "password": "saya",
+        "email": "saya@cronos.cpom",
+        "role": "user"
+    },
+    {
+        "id": 5,
+        "username": "dia",
+        "password": "dia",
+        "email": "dia@cronos.cpom",
+        "role": "user"
+    },
+    {
+        "id": 6,
+        "username": "kamu",
+        "password": "kamu",
+        "email": "kamu@cronos.cpom",
+        "role": "user"
+    },
+    {
+        "id": 7,
+        "username": "mereka",
+        "password": "mereka",
+        "email": "mereka@cronos.cpom",
+        "role": "user"
+    },
+    {
+        "id": 8,
+        "username": "gatau",
+        "password": "gatau",
+        "email": "gatau@cronos.cpom",
+        "role": "user"
+    },
+    {
+        "id": 9,
+        "username": "didinya",
+        "password": "didinya",
+        "email": "didinya@cronos.cpom",
+        "role": "user"
+    },
+    {
+        "id": 10,
+        "username": "aing",
+        "password": "aing",
+        "email": "aing@cronos.cpom",
+        "role": "admin"
+    },
+    {
+        "id": 11,
+        "username": "maneh",
+        "password": "maneh",
+        "email": "maneh@cronos.cpom",
+        "role": "user"
+    },
+    {
+        "id": 12,
+        "username": "sadaya",
+        "password": "sadaya",
+        "email": "sadaya@cronos.cpom",
+        "role": "user"
+    }
+]

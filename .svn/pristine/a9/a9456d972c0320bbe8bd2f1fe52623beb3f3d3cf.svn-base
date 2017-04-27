@@ -1,0 +1,329 @@
+(function () {
+  'use strict';
+
+  angular.module('BlurAdmin.pages')
+      .config(routeConfig);
+
+  /** @ngInject */
+  function routeConfig($urlRouterProvider, $stateProvider, $locationProvider, $httpProvider) {
+
+    $httpProvider.defaults.useXDomain = true;
+    delete $httpProvider.defaults.headers.common['X-Requested-With'];
+
+    $locationProvider.html5Mode(false);
+    //$locationProvider.hashPrefix('!');
+    $urlRouterProvider.otherwise('/login');
+
+    $urlRouterProvider.when("/usermanagement", "/usermanagement/user");
+    $urlRouterProvider.when("/administrator/usersettings", "/administrator/usersettings/user");
+    $urlRouterProvider.when("/administrator/groupsettings", "/administrator/groupsettings/group");
+    $urlRouterProvider.when("/admin", "/admin/role");
+    $urlRouterProvider.when("/maintenance-module", "/maintenance-module/master-module");
+    /*$stateProvider
+      .state('login', {
+        url: '/login',
+        templateUrl: 'app/pages/login/login.html',
+        controller: 'LoginController',
+        controllerAs: 'vm'
+      });*/  
+
+    $stateProvider
+      .state('downup', {
+        url: '/download-upload',
+        templateUrl: 'app/pages/downup/downup.html',
+        controller: 'downupController',
+        title: 'Download & Upload'
+      });
+
+    $stateProvider
+      .state('query', {
+        url: '/query-tools',
+        templateUrl: 'app/pages/query/query.html',
+        controller: 'queryController',
+        title: 'Query Tools'
+      });
+
+    $stateProvider
+      .state('alert', {
+        url: '/alert',
+        templateUrl: 'app/pages/alert/alert.html',
+        controller: 'alertController',
+        title: 'Alert'
+      });
+
+    $stateProvider
+      .state('xmlcreator', {
+        url: '/xml-creator',
+        templateUrl: 'app/pages/xml/creator/index.html',
+        controller: 'xmlCreatorController',
+        title: 'XML creator'
+      });
+
+    $stateProvider
+      .state('xmlgenerator', {
+        url: '/xml-generator',
+        templateUrl: 'app/pages/xml/generator/index.html',
+        controller: 'xmlGeneratorController',
+        title: 'XML Generator'
+      });
+    
+    $stateProvider
+    .state('workflow', {
+      url: '/workflow',
+      templateUrl: 'app/pages/workflow/workflow.html',
+      controller: 'workflowController',
+      title: 'Workflow'
+    });
+
+    $stateProvider
+    .state('clockpicker', {
+      url: '/clockpicker',
+      templateUrl: 'app/pages/common/clockpicker/clockpicker.html',
+      controller: 'clockpickerController',
+      title: 'Clock Picker'
+    });
+
+    $stateProvider
+    .state('daterangepicker', {
+      url: '/daterangepicker',
+      templateUrl: 'app/pages/common/daterangepicker/daterangepicker.html',
+      controller: 'daterangepickerController',
+      title: 'Date Picker (range)'
+    });
+
+    $stateProvider
+    .state('datepicker', {
+      url: '/datepicker',
+      templateUrl: 'app/pages/common/datepicker/datepicker.html',
+      controller: 'datepickerController',
+      title: 'Date Picker'
+    });
+
+    $stateProvider
+        .state('tables', {
+          url: '/tables',
+          template : '<ui-view></ui-view>',
+          abstract: true,
+          controller: 'TablesPageCtrl',
+          title: 'Tables',
+          sidebarMeta: {
+            icon: 'ion-grid',
+            order: 300,
+          },
+        }).state('tables.basic', {
+          url: '/basic',
+          templateUrl: 'app/pages/tables/basic/tables.html',
+          title: 'Basic Tables',
+          sidebarMeta: {
+            order: 0,
+          },
+        }).state('tables.smart', {
+          url: '/smart',
+          templateUrl: 'app/pages/tables/smart/tables.html',
+          title: 'Smart Tables',
+          sidebarMeta: {
+            order: 100,
+          },
+        });
+
+    $stateProvider
+        .state('form', {
+          url: '/form',
+          template : '<ui-view></ui-view>',
+          abstract: true,
+          title: 'Form Elements',
+          sidebarMeta: {
+            icon: 'ion-compose',
+            order: 250,
+          },
+        })
+        .state('form.inputs', {
+          url: '/inputs',
+          templateUrl: 'app/pages/form/inputs/inputs.html',
+          title: 'Form Inputs',
+          sidebarMeta: {
+            order: 0,
+          },
+        })
+        .state('form.layouts', {
+          url: '/layouts',
+          templateUrl: 'app/pages/form/layouts/layouts.html',
+          title: 'Form Layouts',
+          sidebarMeta: {
+            order: 100,
+          },
+        })
+        .state('form.wizard',
+        {
+          url: '/wizard',
+          templateUrl: 'app/pages/form/wizard/wizard.html',
+          controller: 'WizardCtrl',
+          controllerAs: 'vm',
+          title: 'Form Wizard',
+          sidebarMeta: {
+            order: 200,
+          },
+        });
+
+
+        $stateProvider
+            .state('userManagement', {
+              url: '',
+              template : '<ui-view></ui-view>',
+              abstract: true,
+              title: 'User Management',
+              sidebarMeta: {
+                icon: 'ion-compose',
+                order: 250,
+              },
+            }).state('userManagement.user', {
+              url: '/usermanagement',
+              templateUrl: 'app/pages/user/users/users.html',
+              title: 'User',
+              controller: 'usersController',
+              sidebarMeta: {
+                order: 0,
+              },  
+            }).state('userManagement.user.index', {
+              url: '/user',
+              templateUrl: 'app/pages/user/users/users.index.html',
+              title: 'User',
+              controller: 'usersControllerIndex',
+              controllerAs: 'user',
+              sidebarMeta: {
+                order: 0,
+              },
+            }).state('userManagement.user.add', {
+              url: '/user/add',
+              templateUrl: 'app/pages/user/users/users.add.html',
+              title: 'User Add',
+              controller: 'usersControllerAdd',
+              controllerAs: 'users',
+              sidebarMeta: {
+                order: 0,
+              },
+            }).state('userManagement.user.edit', {
+              url: '/user/edit/:id',
+              templateUrl: 'app/pages/user/users/users.add.html',
+              title: 'User',
+              controller: 'usersControllerEdit',
+              controllerAs: 'users',
+              sidebarMeta: {
+                order: 0,
+              },
+            })
+            .state('user.level', {
+              url: '/level',
+              templateUrl: 'app/pages/form/layouts/layouts.html',
+              title: 'Level',
+              sidebarMeta: {
+                order: 100,
+              },
+            })
+            .state('user.role', {
+              url: '/role',
+              templateUrl: 'app/pages/form/wizard/wizard.html',
+              //controller: 'WizardCtrl',
+              //controllerAs: 'vm',
+              title: 'User Role',
+              sidebarMeta: {
+                order: 200,
+              },
+            });
+
+        $stateProvider
+            .state('userSettings', {
+              url: '',
+              template : '<ui-view></ui-view>',
+              abstract: true,
+              title: 'User Settings',
+              sidebarMeta: {
+                icon: 'ion-compose',
+                order: 250,
+              },
+            }).state('userSettings.user', {
+              url: '/administrator/usersettings',
+              templateUrl: 'app/pages/administrator/user.settings/user/index.html',
+              title: 'User',
+              controller: 'userSettingsUserController',
+              sidebarMeta: {
+                order: 0,
+              },  
+            }).state('userSettings.user.index', {
+              url: '/user',
+              templateUrl: 'app/pages/administrator/user.settings/user/user.index.html',
+              title: 'User',
+              controller: 'userSettingsUserController',
+              sidebarMeta: {
+                order: 0,
+              },
+            }).state('userSettings.user.add', {
+              url: '/user/add',
+              templateUrl: 'app/pages/administrator/user.settings/user/users.add.html',
+              title: 'User Add',
+              controller: 'userSettingsUserAddController',
+              controllerAs: 'user'
+            }).state('userSettings.user.edit', {
+              url: '/user/edit/:id',
+              templateUrl: 'app/pages/administrator/user.settings/user/users.add.html',
+              title: 'User',
+              controller: 'userSettingsUserAddController',
+              controllerAs: 'user'
+            });
+
+        $stateProvider
+          .state('groupSettings', {
+            url: '',
+            template : '<ui-view></ui-view>',
+            abstract: true,
+            title: 'Group Settings'
+          }).state('groupSettings.group', {
+            url: '/administrator/groupsettings',
+            templateUrl: 'app/pages/administrator/group.settings/group/index.html',
+            title: 'Group',
+            controller: 'groupSettingsGroupController'
+          }).state('groupSettings.group.index', {
+            url: '/group',
+            templateUrl: 'app/pages/administrator/group.settings/group/group.index.html',
+            title: 'Group',
+            controller: 'groupSettingsGroupController',
+            controllerAs: 'group'
+          });
+
+        $stateProvider
+          .state('role', {
+            url: '',
+            template : '<ui-view></ui-view>',
+            abstract: true,
+            title: 'Role'
+          }).state('role.role', {
+            url: '/admin',
+            templateUrl: 'app/pages/role/index.html',
+            title: 'Role',
+            controller: 'roleController'
+          }).state('role.role.index', {
+            url: '/role',
+            templateUrl: 'app/pages/role/role.index.html',
+            title: 'Role'
+          });
+
+        $stateProvider
+          .state('maintenanceModule', {
+            url: '',
+            template : '<ui-view></ui-view>',
+            abstract: true,
+            title: 'File Module Master'
+          }).state('maintenanceModule.maintenance', {
+            url: '/maintenance-module',
+            templateUrl: 'app/pages/maintenance/index.html',
+            title: 'File Module Master',
+            controller: 'maintenanceController'
+          }).state('maintenanceModule.maintenance.index', {
+            url: '/master-module',
+            templateUrl: 'app/pages/maintenance/maintenance.index.html',
+            title: 'Master Module'
+          });
+
+  }
+
+})();

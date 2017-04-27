@@ -1,0 +1,61 @@
+<form class="form-horizontal" name="restartServiceForm" ng-submit="submitRestartServiceForm(roleForm.$valid)" novalidate>
+<div class="modal-content" tabindex="0">
+	   <div class="modal-header bg-info">
+	     	<i class="{{ icon }} modal-icon"></i><span>{{ action }}</span>
+	   </div>
+  		
+  		<div class="modal-body " >
+	  		<div class="form-horizontal" >
+
+				<!-- <div class="form-group has-feedback">
+				    <label for="locationFile" class="col-sm-3 control-label">Location File</label>
+				    <div class="col-sm-8">
+				      <input type="file" id="locationFile" name="locationFile" ng-model="module.locationFile" class="form-control" required/>
+				      <span class="help-block error-block basic-block">Required</span>
+				    </div>
+				</div> -->
+
+				<div class="form-group has-feedback" 
+				  	ng-class="{'has-error': restartServiceForm.restartDate.$invalid && (restartServiceForm.restartDate.$dirty || restartServiceForm.$submitted)}">
+				    <label for="restartDate" class="col-sm-3 control-label">Set Date *</label>
+				    <div class="col-sm-8">
+				      <input type="text" class="form-control" id="restartDate" name="restartDate" ng-model="group.restartDate" required datepicker-directive />
+				      <span class="help-block error-block basic-block">Required</span>
+				    </div>
+				</div>
+
+				<div class="form-group has-feedback"  
+				  	ng-class="{'has-error': restartServiceForm.restartTime.$invalid && (restartServiceForm.restartTime.$dirty || restartServiceForm.$submitted)}">
+				    <label for="restartTime" class="col-sm-3 control-label">Set Time *</label>
+				    <div class="col-sm-8">
+
+				    	<div class="input-group" clockpicker-directive data-autoclose="true" ng-model="group.restartTime" >
+							<input type="text" class="form-control current-time" id="restartTime" name="restartTime"  required/>
+							<span class="input-group-addon">
+								<span class="fa fa-clock-o"></span>
+							</span>
+						</div>
+				      	<span class="help-block error-block basic-block">Required</span>
+				    </div>
+				</div>
+
+				<div class="form-group has-feedback"  
+				  	ng-class="{'has-error': restartServiceForm.broadcastText.$invalid && (restartServiceForm.broadcastText.$dirty || restartServiceForm.$submitted)}">
+				    <label for="broadcastText" class="col-sm-3 control-label">Text Broadcast *</label>
+				    <div class="col-sm-8">
+				      <textarea name="broadcastText" ng-model="group.broadcastText" class="form-control" id="broadcastText" style="resize: vertical;"></textarea>
+				      <span class="help-block error-block basic-block">Required</span>
+				    </div>
+				</div>
+
+			</div>
+  		</div>
+      	
+		<div class="modal-footer">
+			  <button type="button" class="btn btn-default" ng-click="$dismiss()">Cancel</button>
+			  <button type="submit" title="Okay" class="btn btn-info" ng-click="okay()" >Ok</button>
+		</div>
+</div>
+  
+</div>
+</form>

@@ -1,0 +1,67 @@
+[
+    {
+        "icon": "fa fa-wrench",
+        "subMenu": [
+            {
+                "icon": "fa fa-user",
+                "stateRef": "userSettings.user",
+                "title": "User"
+            },
+            
+            {
+                "disabled": true,
+                "icon": "fa fa-university",
+                "title": "Business Unit"
+            },
+
+            {
+                "icon": "fa fa-object-group",
+                "stateRef": "groupSettings.group",
+                "title": "Group"
+            }
+        ],
+        "title": "User Management"
+    },
+    {
+        "stateRef": "role.role",
+        "icon": "fa fa-gamepad",
+        "title": "Role"
+    },
+    {
+        "stateRef": "daterangepicker",
+        "icon": "fa fa-gamepad",
+        "title": "Date Picker (range)"
+    },
+    {
+        "stateRef": "datepicker",
+        "icon": "fa fa-gamepad",
+        "title": "Date Picker"
+    },
+    {
+        "stateRef": "clockpicker",
+        "icon": "fa fa-gamepad",
+        "title": "Clock Picker"
+    },
+    {
+        "icon": "fa fa-desktop",
+         "subMenu": [
+            {
+                "icon": "fa fa-sun-o",
+                "stateRef": "maintenanceModule.maintenance",
+                "title": "Master Module"
+            },
+            
+            {
+                "icon": "fa fa-history",
+                "stateRef": "restartModule.history",
+                "title": "History Module"
+            }
+        ],
+        "title": "Maintenance Module"
+    },
+    {
+        "icon": "fa fa-database",
+        "stateRef": "database",
+        "title": "Database"
+    }
+]

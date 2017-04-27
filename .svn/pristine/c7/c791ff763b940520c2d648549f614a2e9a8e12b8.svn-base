@@ -1,0 +1,101 @@
+<form class="form-horizontal" name="restartServiceForm" ng-submit="submitRestartServiceForm(roleForm.$valid)" novalidate>
+	<div class="modal-content" tabindex="0">
+		   <div class="modal-header bg-info">
+		     	<i class="{{ icon }} modal-icon"></i><span>{{ action }}</span>
+		   </div>
+	  		
+	  		<div class="modal-body">
+	  			<ba-wizard>
+		  			<ba-wizard-step>
+				  		<div class="form-horizontal">
+
+				  			<table width="100%">
+				  				<tr>
+				  					<td width="30%">
+				  						<center><img src="/assets/img/bar-chart2.png" style="width: 100% "></center>
+				  					</td>
+				  					<td width="70%" style="padding: 20px;">
+
+				  						<div style="height: 230px; overflow: auto; border: 1px solid;">
+				  							<b>Welcome to the Installation Process Patch </br>for TRM Module Version 2.5</b>
+				  							<br/>
+				  							<br/>
+				  							The content of Changes is:
+				  							<br/>
+				  							<br/>
+				  							Perubahan yang dilakukan pada proses update
+				  							<br/>
+				  							<br/>
+				  							Module: {{module}}
+				  							<br/>
+				  							Description: {{description}}
+				  							<br/>
+				  							Version: {{version}}
+				  							<br/>
+				  							<br/>
+				  							<br/>
+				  							When you have installed this module, click Next to begin the installation
+				  							<br/>
+				  							<br/>
+				  							<br/>
+				  							<br/>
+				  						</div>
+				  						<small>Copyright (c) 2017, Cronos, All Rights reserved</small>
+				  					</td>
+				  				</tr>
+				  			</table>
+
+						</div>
+					</ba-wizard-step>
+					<ba-wizard-step>
+				  		<div class="form-horizontal">
+
+				  			<table width="100%">
+				  				<tr>
+				  					<td width="30%">
+				  						<center><img src="/assets/img/database.png" style="width: 100% "></center>
+				  					</td>
+				  					<td width="70%" style="padding: 20px;">
+
+				  						<div style="height: 230px; overflow: auto; border: 1px solid;">
+				  							<b>Welcome to the Installation Process Patch </br>for TRM Module Version 2.5</b>
+				  							<br/>
+				  							<br/>
+				  							The content of Changes is:
+				  							<br/>
+				  							<br/>
+				  							Perubahan yang dilakukan pada proses update
+				  							<br/>
+				  							<br/>
+				  							Module: {{module}}
+				  							<br/>
+				  							Description: {{description}}
+				  							<br/>
+				  							Version: {{version}}
+				  							<br/>
+				  							<br/>
+				  							<br/>
+				  							When you have installed this module, click Next to begin the installation
+				  							<br/>
+				  							<br/>
+				  							<br/>
+				  							<br/>
+				  						</div>
+				  						<small>Copyright (c) 2017, Cronos, All Rights reserved</small>
+				  					</td>
+				  				</tr>
+				  			</table>
+
+						</div>
+					</ba-wizard-step>
+					<ba-wizard-step title="Finish">
+                       <button type="submit" title="Okay" class="btn btn-info" ng-click="$dismiss()" >Finish</button>
+                    </ba-wizard-step>
+				</ba-wizard>
+	  		</div>
+	      	
+			<div class="modal-footer">
+				 &nbsp;
+			</div>
+	</div>
+</form>

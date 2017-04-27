@@ -1,0 +1,72 @@
+<ul class="al-msg-center clearfix">
+      <li>
+        <clock format="24" style="color: #fff; font-size: 13px;">Wellcome, {{ user }} &nbsp;&nbsp;&nbsp;&nbsp;</clock>
+      </li>
+
+      <li>
+        <a title="Help">
+          <i class="fa fa-question-circle" style="font-size:initial" aria-hidden="true"></i>
+        </a>
+      </li>
+      
+      <li uib-dropdown>
+        <a href uib-dropdown-toggle title="Module">
+          <i class="fa fa-th" style="font-size:initial" aria-hidden="true"></i>
+        </a>
+
+        <div uib-dropdown-menu class="top-dropdown-menu">
+          <i class="dropdown-arr"></i>
+          
+          <!-- <div class="header clearfix">
+            <strong>Module</strong>
+          </div> -->
+          <div class="msg-list">
+            <a href class="clearfix" ng-repeat="mod in modul">
+              <div class="img-area">
+                <b>{{mod.modulName}}</b>
+              </div>
+              <div class="msg-area">
+                {{mod.modulDesc}}
+              </div>
+            </a>
+          </div>
+
+        </div>
+      </li>
+
+      <li uib-dropdown>
+        <a href uib-dropdown-toggle title="Settings" style="font-size:initial" aria-hidden="true">
+          <i class="fa fa-cogs"></i>
+        </a>
+
+        <div uib-dropdown-menu class="top-dropdown-menu">
+          <i class="dropdown-arr"></i>
+          <div class="msg-list">
+            <a href class="clearfix">
+              <div class="img-area">
+                <i class="fa fa-language" aria-hidden="true"></i>
+              </div>
+              <div class="msg-area">
+                <b>Language</b>
+              </div>
+            </a>
+            <a href class="clearfix">
+              <div class="img-area">
+                <i class="fa fa-user-secret" aria-hidden="true"></i>
+              </div>
+              <div class="msg-area">
+                <b>Change Password</b>
+              </div>
+            </a>
+          </div>
+
+        </div>
+      </li>
+
+      <li>
+        <a ng-click="logout()" title="Sign Out">
+          <i class="fa fa-sign-out" style="font-size:initial" aria-hidden="true"></i>
+        </a>
+      </li>
+
+    </ul>

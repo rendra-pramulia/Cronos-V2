@@ -1,0 +1,8 @@
+
+<div class="col-sm-8">
+
+  <label for="datepicker">From</label>
+  <input class="form-control" type="text" placeholder="click to show datepicker" ng-model="date" id="datepicker" name="datepicker" datepicker-directive>
+  <button ng-click="do()">print</button>
+</div>
+

@@ -1,0 +1,88 @@
+<form class="form-horizontal" name="groupForm" ng-submit="submitGroupForm(groupForm.$valid)" novalidate>
+<div class="modal-content">
+	   <div class="modal-header bg-info">
+	     	<i class="{{ icon }} modal-icon"></i><span>{{ action }}</span>
+	   </div>
+  		
+  		<div class="modal-body">
+	  		<div class="form-horizontal" >	
+				<div class="form-group has-feedback"  
+				  	ng-class="{'has-error': groupForm.groupName.$invalid && (groupForm.groupName.$dirty || groupForm.$submitted)}">
+				    <label for="groupName" class="col-sm-3 control-label">Group ID *</label>
+				    <div class="col-sm-8">
+				      <input type="text" class="form-control" id="groupName" name="groupName" ng-model="group.groupName" required/>
+				      <span class="help-block error-block basic-block">Required</span>
+				    </div>
+				</div>
+
+				<div class="form-group"
+					ng-class="{'has-error': groupForm.groupDescription.$invalid && (groupForm.groupDescription.$dirty || groupForm.$submitted)}">
+				    <label class="col-sm-3 control-label">Description Group *</label>
+				    <div class="col-sm-8">
+				      <input type="text" class="form-control" id="groupDescription" name="groupDescription" ng-model="group.groupDescription" required/>
+				      <span class="help-block error-block basic-block">Required</span>
+				    </div>
+				</div>
+
+				<div class="form-group"
+					ng-class="{'has-error': groupForm.groupLocation.$invalid && (groupForm.groupLocation.$dirty || groupForm.$submitted)}">
+				    <label class="col-sm-3 control-label">Location *</label>
+				    <div class="col-sm-8">
+				      <input type="text" class="form-control" id="groupLocation" name="groupLocation" ng-model="group.groupLocation" required/>
+				      <span class="help-block error-block basic-block">Required</span>
+				    </div>
+				</div>
+
+				<div class="form-group select-type" 
+				  	ng-class="{'has-error': groupForm.status.$invalid && (groupForm.status.$dirty || groupForm.$submitted)}">
+				    <label for="status" class="col-sm-3 control-label">Active Status *</label>
+				   <div class="col-sm-8">
+					    <label class="custom-radio nowrap">
+				      		<input type="radio" name="status" class="form-control"  value="A" ng-model="group.status" ng-required="!group.status">
+				      		<span>Active</span>
+					    </label>
+					    <label class="custom-radio nowrap">
+					      	<input type="radio" name="status" class="form-control" value="I" ng-model="group.status" ng-required="!group.status">
+					      	<span>Not Active</span>
+					    </label>
+					    <span class="help-block error-block basic-block">Required</span>
+				    </div>
+				</div>
+
+				<!-- <div class="form-group"
+				ng-class="{'has-error': groupForm.listRoleId.$invalid && (groupForm.listRoleId.$dirty || groupForm.$submitted)}">
+				    <label class="col-sm-3 control-label">Role ID</label>
+				    <div class="col-sm-8">
+				      <textarea type="text" style="resize: vertical" class="form-control" name="listRoleId" id="listRoleId" ng-model="group.listRoleId" required />
+				      <span class="help-block error-block basic-block">Required</span>
+				    </div>
+				</div>
+ -->
+				<div class="form-group" 
+					ng-class="{'has-error': groupForm.listRoleId.$invalid && (groupForm.listRoleId.$dirty || groupForm.$submitted)}">
+				    <label for="role" class="col-sm-3 control-label">Role ID *</label>
+				    <div class="col-sm-8">
+					      <select multiple name="listRoleId" class="form-control"
+					       ng-model="group.listRoleId" 
+					       ng-options="option.id as option.roleName for option in listRole" 
+					       required selectpicker>
+					       <option value="" disabled>Select your option</option>
+						  </select>
+						  <span class="help-block error-block basic-block">Required</span>
+				    </div>
+				  </div>
+
+			</div>
+  		</div>
+      	
+		<div class="modal-footer">
+			  <button type="button" class="btn btn-default" ng-click="$dismiss()">Cancel</button>
+			  <button type="submit" title="Save" class="btn btn-info" ng-click="submit()" >{{label}}</button>
+		</div>
+		
+  <!-- <div class="modal-body text-center">ID Kotak: <span>{{ id }}</span><br></div>
+  <div class="modal-body text-center">Masukkan nama status data baru: <input type="text" name="FirstName" value="{{ name }}"><br> --></div>
+  
+</div>
+</form>
+ <!-- ng-click="" -->

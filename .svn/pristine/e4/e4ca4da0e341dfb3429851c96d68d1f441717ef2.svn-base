@@ -1,0 +1,24 @@
+<!-- <cronos-button-action></cronos-button-action> -->
+
+<div class="row">
+	<div class="col-md-12" ba-panel ba-panel-class="with-scroll">
+
+	    <!-- <button ui-sref="userSettings.user.add" title="Add New" ng-show="insertUser" class="btn btn-info btn-icon"><i class="fa fa-plus-circle"></i></button>
+	     -->
+
+	    <button ng-show="insertRole" id="addRole" title="Add New Role" ng-click="modalAdd()"  class="btn btn-info btn-icon"><i class="fa fa-plus-circle"></i></button>
+		<button ng-show="editRole" title="Edit Role" ng-click="modalEdit()" class="btn btn-success btn-icon"><i class="fa fa-pencil-square-o"></i></button>
+	    <button ng-click = "modalDelete()" title="Delete Role" ng-show="deleteRole" class="btn btn-danger btn-icon"><i class="fa fa-trash-o"></i></button>
+
+	</div>
+</div>
+
+	<div class="row">
+	<div class="col-md-12">
+	  <div ba-panel ba-panel-class="with-scroll">
+	    <div class="horizontal-scroll">
+	      	<table id="table-group" data-dt-table="dtConfig" data-dt-data="dtData" data-click-me="clickMe(selected, data)" class="display" selected-row="selectedRow(selected, tableData)"></table>
+	    </div>
+	  </div>
+	</div>
+</div>

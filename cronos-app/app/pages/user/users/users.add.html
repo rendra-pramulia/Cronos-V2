@@ -1,0 +1,61 @@
+<form class="form-horizontal" name="usersForm" ng-submit="submitForm(usersForm.$valid)" novalidate>
+
+<div class="row">
+  <div class="col-md-12" ba-panel ba-panel-class="with-scroll">
+      <a ui-sref="userManagement.user" title="Cancel" ng-show="userBack" class="btn btn-info btn-icon"><i class="ion-android-cancel"></i></a>
+      <button type="submit" title="Save" ng-show="userSave" class="btn btn-info btn-icon"><i class="ion-android-send"></i></button>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12" ba-panel ba-panel-class="with-scroll">
+    
+      <div class="form-group has-feedback"
+           ng-class="{'has-error': usersForm.username.$invalid && (usersForm.username.$dirty || usersForm.$submitted)}">
+          <label for="username" class="col-sm-2 control-label">Username</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="username" name="username" placeholder="Username" ng-model="users.username" required>
+            <span class="help-block error-block basic-block">Required</span>
+          </div>
+      </div>
+      
+      <div class="form-group" ng-class="{'has-error': usersForm.email.$invalid && (usersForm.email.$dirty || usersForm.$submitted)}">
+          <label for="email" class="col-sm-2 control-label">Email address</label>
+          <div class="col-sm-10">
+            <input type="email" class="form-control" id="email" name="email" placeholder="Email" ng-model="users.email">
+            <span class="help-block error-block basic-block">Proper email required</span>
+          </div>
+      </div>
+
+      <div class="form-group" ng-class="{'has-error': usersForm.role.$invalid && (usersForm.role.$dirty || usersForm.$submitted)}">
+          <label for="role" class="col-sm-2 control-label">Role</label>
+          <div class="col-sm-10">
+            <select class="form-control" id="role" name="role" ng-model="users.role" title="--select role--" selectpicker required>
+                <option selected value="" disabled=""></option>
+                <option value="ADMIN">ADMIN</option>
+                <option value="USER">USER</option>
+            </select>
+            <span class="help-block error-block basic-block">Required</span>
+          </div>
+      </div>
+
+      <div class="form-group" ng-class="{'has-error': usersForm.password.$invalid && (usersForm.password.$dirty || usersForm.$submitted)}">
+          <label for="exampleInputPassword1" class="col-sm-2 control-label">Password</label>
+          <div class="col-sm-10">
+            <input type="password" ng-disabled="isEdit" class="form-control" id="password" name="password" placeholder="Password" ng-model="users.password" required>
+            <span class="help-block error-block basic-block">Required</span>
+          </div>
+      </div>
+
+      <div class="form-group" ng-class="{'has-error': !users.areuserPasswordsEqual() && (usersForm.confirmPassword.$dirty || usersForm.$submitted)}">
+          <label for="exampleInputConfirmPassword1" class="col-sm-2 control-label">Confirm Password</label>
+          <div class="col-sm-10">
+            <input type="password" ng-disabled="isEdit" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" ng-model="users.confirmPassword" required>
+            <span class="help-block error-block basic-block" ng-show="!isEdit">Passwords should match</span>
+          </div>
+      </div>
+
+  </div>
+</div>
+
+</form>

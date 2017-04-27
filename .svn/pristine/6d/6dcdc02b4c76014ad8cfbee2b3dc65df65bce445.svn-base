@@ -1,0 +1,12 @@
+<div class="modal-content">
+  <div class="modal-header bg-info">
+    <i class="{{ icon }} modal-icon"></i><span>{{ action }}</span>
+  </div>
+  <div class="modal-body text-center">ID Kotak: <span>{{ id }}</span><br></div>
+  <div class="modal-body text-center">Masukkan nama status data baru: <input type="text" name="FirstName" value="{{ name }}"><br></div>
+  <div class="modal-footer">
+  	<button type="button" class="btn btn-default" ng-click="$dismiss()">Cancel</button>
+    <button type="button" class="btn btn-info" ng-click="{{ clickAct }}$dismiss()">OK</button>
+  </div>
+</div>
+ <!-- ng-click="" -->

@@ -1,0 +1,28 @@
+<cronos-button-action></cronos-button-action>
+
+<div class="widgets">
+
+	<div class="row">
+		<div class="col-md-12" ba-panel ba-panel-class="with-scroll">
+		    <button id="addStatusData" title="Add" ng-click="modalAdd()"  class="btn btn-info btn-icon"><i class="ion-plus-round"></i></button>
+		</div>
+	</div>
+
+	<div class="row">
+		
+	</div>
+
+	<div class="row">
+  		<div class="col-lg-12" ba-panel ba-panel-class="">
+			<div id="statusDataContainer"  style="overflow-x:auto;">
+				<workflow-directive jsplumb="jsonVar.jsplumb" connector="jsonVar.connector" 
+				delete-box ="deleteBox(id)" modal-delete="modalDelete()" call-delete="delBox(deleteBox)" 
+				call-add="tambahBox(addBox)" add-box = "addBox()" 
+				edit-box="editBox(id, name)" modal-edit="modalEdit()" 
+				update-position = "updatePosition(posX, posY, id)">
+				<workflow-directive>
+			</div>
+  		</div>
+	</div>
+	
+</div>

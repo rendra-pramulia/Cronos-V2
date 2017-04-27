@@ -1,0 +1,11 @@
+<cronos-button-action></cronos-button-action>
+
+<div class="row">
+	<div class="col-md-12">
+	  <div ba-panel ba-panel-class="with-scroll">
+	    <div class="horizontal-scroll">
+	      	<table id="table-user" data-dt-table="dtConfig" data-dt-data="dtData" data-click-me="clickMe(selected, data)" class="display"></table>
+	    </div>
+	  </div>
+	</div>
+</div>
